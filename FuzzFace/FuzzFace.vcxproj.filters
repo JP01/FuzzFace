@@ -24,7 +24,10 @@
     <ClCompile Include="Circuit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestCircuit.cpp">
+    <ClCompile Include="TestCircuitMutAcc.cpp">
+      <Filter>UnitTests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCircuitMatrices.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
   </ItemGroup>
