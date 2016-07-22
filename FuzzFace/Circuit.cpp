@@ -4,10 +4,7 @@
 
 //Default Constructor
 //Calls the constructor with default 44.1k Hz sample rate
-Circuit::Circuit() :Circuit(44100.) 
-{
-
-}
+Circuit::Circuit() :Circuit(44100.) {}
 
 //Constructor which takes sampleRate as an arguement
 //and initialises the sampling period T to 1./sampleRate
@@ -47,6 +44,10 @@ void Circuit::updateCircuitMatrices() {
 	capMatrix << (2*c1)/T, (2*c2)/T, (2*c3)/T;
 	diagResMatrix = resMatrix.asDiagonal();
 	diagCapMatrix = capMatrix.asDiagonal();
+
+	std::cout << diagResMatrix << std::endl;
+	std::cout << diagCapMatrix << std::endl;
+
 }
 
 
