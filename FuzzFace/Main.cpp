@@ -2,13 +2,18 @@
 #include "Circuit.h"
 
 void main() {
+	std::cout << "Main program" << std::endl;
 
 	Circuit c;
-	
-	std::cout << "Main program" << std::endl;
-	std::cout << "The current fuzz is : " << c.getFuzz() << std::endl;
-	std::cout << "The current vol is : " << c.getVol() << std::endl;
+	double fuzz = 0;
+	double vol = 0;
+	fuzz = c.getFuzz();
+	vol = c.getVol();
+
+	std::cout << "The current fuzz is : " << fuzz << std::endl;
+	std::cout << "The current vol is : " << vol << std::endl;
 
 	
+
 
 }
