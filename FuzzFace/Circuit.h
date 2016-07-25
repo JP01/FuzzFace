@@ -67,14 +67,47 @@ class Circuit
 		const static int numInputs = 2;  //Number of inputs
 		const static int numNonLin = 4; //Number of nonlinearities
 		const static int numOutputs = 1; //Number of outputs
+		
+		/*One time setup of incident matrices, this is performed in the constructor and sets up the incident matrices*/
+		void Circuit::initialiseIncidentMatrices() {
+
+			//The incident matrix for the resistors
+			incidentResistors <<
+				0, 0, -1, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, -1, 1, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, -1, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, -1,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 1, 0, 0, 0, 0, -1, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1, -1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0;
+
+			incidentCapacitors <<
+				1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, -1, 0;
+
+			incidentVoltage <<
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, -1, 0, 0, 0, 0, 0, 0;
+
+			incidentNonlinearities <<
+				0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, -1, 0, 0, 0, 1, 0, 0, 0,
+				0, 0, 0, 0, -1, 0, 1, 0, 0, 0;
+
+			incidentOutput <<
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
+		}
+
 
 		Eigen::Matrix<double, numRes, numNodes> incidentResistors;    //incident resistor matrix
 		Eigen::Matrix<double, numCap, numNodes> incidentCapacitors;   //incident capacitor matrix
 		Eigen::Matrix<double, numInputs, numNodes> incidentVoltage;   //incident voltage matrix
 		Eigen::Matrix<double, numNonLin, numNodes> incidentNonlinearities;  //incident nonlinearity matrix
 		Eigen::Matrix<double, numOutputs, numNodes> incidentOutput;  //incident output matrix
-		void initialiseIncidentMatrices();  //function to initialise all the incident matrices
-
+	
 		//Setup functions for the system matrix
 		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemRes;  //Resistor matrix used in calculation of system matrix
 		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemCap;  //Capacitor matrix used in calculation of system matrix

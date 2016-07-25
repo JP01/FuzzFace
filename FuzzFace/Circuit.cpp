@@ -12,15 +12,14 @@ Circuit::Circuit() : Circuit(44100.) {};
 Circuit::Circuit(double sampleRate) :T(1./sampleRate){
 
 		//Initialise controllable paramaters
-		vol = 0.9;
-		fuzz = 0.9;
+		setVol(0.9);
+		setFuzz(0.9);
 
 		std::cout << "Circuit Created" << std::endl;
 	
-		//Create Circuit Matrices
-		updateCircuitMatrices();
 		//Initialise the incident matrices
 		initialiseIncidentMatrices();
+
 		//Initialise the system matrix
 		refreshSystemMatrix();
 }
@@ -38,8 +37,9 @@ void Circuit::updateCircuitMatrices() {
 	resMatrix << 1 / r1, 1 / r2, 1 / r3, 1 / r4, 1 / r5, 1 / r6, 1 / r7, 1 / r8;
 
 	//prep the capacitor values for input into diagonal matrix
-	capMatrix << (2*c1)/T, (2*c2)/T, (2*c3)/T;
-
+	capMatrix << c1,c2,c3;
+	capMatrix = (2 * capMatrix) / T;
+	
 	//Convert the matrices to diagonal matrices
 	diagResMatrix = resMatrix.asDiagonal();
 	diagCapMatrix = capMatrix.asDiagonal();
@@ -47,45 +47,16 @@ void Circuit::updateCircuitMatrices() {
 	
 }
 
-void Circuit::initialiseIncidentMatrices() {
-	
-	//The incident matrix for the resistors
-	incidentResistors << 
-		0, 0,-1, 1, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0,-1, 1, 0, 0, 0, 0,
-		0, 0, 0, 1, 0,-1, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0, 1,-1,
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		0, 1, 0, 0, 0, 0,-1, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 1,-1, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 1, 0, 0;
-
-	incidentCapacitors <<
-		1,-1, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-		0, 0, 0, 0, 0, 1, 0, 0,-1, 0;
-
-	incidentVoltage <<
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0,-1, 0, 0, 0, 0, 0, 0;
-
-	incidentNonlinearities <<
-		0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, -1, 0, 0, 0, 1, 0, 0, 0,
-		0, 0, 0, 0, -1, 0, 1, 0, 0, 0;
-
-	incidentOutput <<
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
-}
-
+/* Function used to refresh the system matrix, call when fuzz or vol is changed */
 void Circuit::refreshSystemMatrix() {
+	//Update the circuit matrices
+	updateCircuitMatrices();
 	
-	//Create a matrix incidentResistorT to store the transpose of the incidentResistor matrix
+	//Update the matrix systemRes with the resistor element of the system Matrix
 	systemRes = (incidentResistors.transpose())*diagResMatrix*incidentResistors;
 
-	//Create a matrix incidentCapacitorT to store the transpose of the incidentCapacitor matrix
-	systemCap = incidentCapacitors.transpose()*diagCapMatrix*incidentCapacitors;
+	//Update the matrix systemCap with the capacitor element of the system Matrix
+	systemCap = (incidentCapacitors.transpose())*diagCapMatrix*incidentCapacitors;
 
 	//Construct system matrix
 	systemMatrix.block(0, 0, numNodes, numNodes) = systemRes + systemCap;  //sets the first 10x10 top left matrix to be the sum of systemRes and systemCap matrices
@@ -95,8 +66,8 @@ void Circuit::refreshSystemMatrix() {
 
 	std::cout << systemMatrix << std::endl;
 
-}
 
+}
 
 /* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal >= 1, default to 0.6 */
 void Circuit::setFuzz(double fuzzVal) {
