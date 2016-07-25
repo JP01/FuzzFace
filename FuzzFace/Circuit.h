@@ -68,16 +68,20 @@ class Circuit
 		const static int numNonLin = 4; //Number of nonlinearities
 		const static int numOutputs = 1; //Number of outputs
 
-		Eigen::Matrix<double, numRes, numNodes> incidentResistors;
-		Eigen::Matrix<double, numCap, numNodes> incidentCapacitors;
-		Eigen::Matrix<double, numInputs, numNodes> incidentVoltage;
-		Eigen::Matrix<double, numNonLin, numNodes> incidentNonlinearities;
-		Eigen::Matrix<double, numOutputs, numNodes> incidentOutput;
-		void initialiseIncidentMatrices();
+		Eigen::Matrix<double, numRes, numNodes> incidentResistors;    //incident resistor matrix
+		Eigen::Matrix<double, numCap, numNodes> incidentCapacitors;   //incident capacitor matrix
+		Eigen::Matrix<double, numInputs, numNodes> incidentVoltage;   //incident voltage matrix
+		Eigen::Matrix<double, numNonLin, numNodes> incidentNonlinearities;  //incident nonlinearity matrix
+		Eigen::Matrix<double, numOutputs, numNodes> incidentOutput;  //incident output matrix
+		void initialiseIncidentMatrices();  //function to initialise all the incident matrices
 
-		//Setup function for the system matrix
-		Eigen::Matrix<double, numNodes + numInputs, numNodes + numInputs> systemMatrix;
+		//Setup functions for the system matrix
+		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemRes;  //Resistor matrix used in calculation of system matrix
+		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemCap;  //Capacitor matrix used in calculation of system matrix
 		
-		void setupSystemMatrix();
+
+		Eigen::Matrix<double, numNodes+numInputs, numNodes + numInputs> systemMatrix;  //Create a 12x12 system matrix
+		
+		void refreshSystemMatrix();  //function to setup and refrseh the system matrix
 
 };

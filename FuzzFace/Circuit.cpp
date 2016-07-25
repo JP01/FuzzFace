@@ -19,8 +19,10 @@ Circuit::Circuit(double sampleRate) :T(1./sampleRate){
 	
 		//Create Circuit Matrices
 		updateCircuitMatrices();
+		//Initialise the incident matrices
 		initialiseIncidentMatrices();
-		setupSystemMatrix();
+		//Initialise the system matrix
+		refreshSystemMatrix();
 }
 
 /*Function to populate the circuit matrices*/
@@ -77,15 +79,23 @@ void Circuit::initialiseIncidentMatrices() {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
 }
 
-void Circuit::setupSystemMatrix() {
+void Circuit::refreshSystemMatrix() {
 	
+	//Create a matrix incidentResistorT to store the transpose of the incidentResistor matrix
+	systemRes = (incidentResistors.transpose())*diagResMatrix*incidentResistors;
+
+	//Create a matrix incidentCapacitorT to store the transpose of the incidentCapacitor matrix
+	systemCap = incidentCapacitors.transpose()*diagCapMatrix*incidentCapacitors;
+
+	//Construct system matrix
+	systemMatrix.block(0, 0, numNodes, numNodes) = systemRes + systemCap;  //sets the first 10x10 top left matrix to be the sum of systemRes and systemCap matrices
+	systemMatrix.block(0, numNodes, numNodes, numInputs) = incidentVoltage.transpose();  //sets the 10x2 matrix starting at (0,10) equal to the transpose of incidentVoltage matrix
+	systemMatrix.block(numNodes, 0, numInputs, numNodes) = incidentVoltage;  //sets the 2x10 matrix starting at (10,0) equal to the incidentVoltage matrix
+	systemMatrix.block(numNodes, numNodes, numInputs, numInputs).setZero();  //sets the last 2x2 matrix in the bottom right corner to 0
+
+	std::cout << systemMatrix << std::endl;
+
 }
-
-/* Returns the current diagonal resistor matrix */
-
-/* create the setter for the diagon capacitor matrix*/
-
-/* Returns the current diagonal capacitor matrix*/
 
 
 /* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal >= 1, default to 0.6 */
