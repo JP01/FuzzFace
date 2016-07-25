@@ -12,8 +12,8 @@ Circuit::Circuit() : Circuit(44100.) {};
 Circuit::Circuit(double sampleRate) :T(1./sampleRate){
 
 		//Initialise controllable paramaters
-		setVol(0.9);
-		setFuzz(0.9);
+		setVol(defaultVol);
+		setFuzz(defaultFuzz);
 
 		std::cout << "Circuit Created" << std::endl;
 	
@@ -38,7 +38,7 @@ void Circuit::updateCircuitMatrices() {
 
 	//prep the capacitor values for input into diagonal matrix
 	capMatrix << c1,c2,c3;
-	capMatrix = (2 * capMatrix) / T;
+	capMatrix = (2 * capMatrix)/T;
 	
 	//Convert the matrices to diagonal matrices
 	diagResMatrix = resMatrix.asDiagonal();
@@ -63,9 +63,8 @@ void Circuit::refreshSystemMatrix() {
 	systemMatrix.block(0, numNodes, numNodes, numInputs) = incidentVoltage.transpose();  //sets the 10x2 matrix starting at (0,10) equal to the transpose of incidentVoltage matrix
 	systemMatrix.block(numNodes, 0, numInputs, numNodes) = incidentVoltage;  //sets the 2x10 matrix starting at (10,0) equal to the incidentVoltage matrix
 	systemMatrix.block(numNodes, numNodes, numInputs, numInputs).setZero();  //sets the last 2x2 matrix in the bottom right corner to 0
-
-	std::cout << systemMatrix << std::endl;
-
+	
+	std::cout << "This is the system matrix \n" << systemMatrix << std::endl;
 
 }
 
@@ -77,8 +76,8 @@ void Circuit::setFuzz(double fuzzVal) {
 	}
 	else {
 		//Defaults value to 0.6 and prints a message
-		std::cout << "Fuzz out of range, defaulted to 0.6" << std::endl;
-		fuzz = 0.6;
+		std::cout << "Fuzz out of range, defaulted to " << defaultFuzz << std::endl;
+		fuzz = defaultFuzz;
 	}
 }
 
@@ -96,8 +95,8 @@ void Circuit::setVol(double volVal) {
 	}
 	else {
 		//Defaults value to 0.4 and prints a message
-		std::cout << "Vol out of range, defaulted to 0.4" << std::endl;
-		vol = 0.4;
+		std::cout << "Vol out of range, defaulted to " << defaultVol << std::endl;
+		vol = defaultVol;
 	}
 }
 

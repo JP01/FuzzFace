@@ -18,6 +18,7 @@ double volValidLower = 0.01;
 double volValid = 0.5;
 double volValidUpper = 1;
 double volInvalidUpper = 1.01;
+
 double defaultFuzz = 0.6;
 double defaultVol = 0.4;
 
@@ -112,3 +113,4 @@ BOOST_AUTO_TEST_CASE(testVolInvalidUpper) {
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getVol(), defaultVol);
 }
+
