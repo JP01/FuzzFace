@@ -27,7 +27,8 @@ class Circuit
 		double getVol();                 //returns the volume parameter
 
 		//System Matrix 12x12
-		Eigen::Matrix<double, 12, 12> getSystemMatrix() { return systemMatrix; }
+		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
+		Eigen::Matrix<double, 12, 12> getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
 
 		
 	private: //access control

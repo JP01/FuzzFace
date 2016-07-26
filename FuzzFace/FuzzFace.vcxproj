@@ -164,7 +164,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestCircuitMatrices|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="TestCircuitMatrices.cpp">
+    <ClCompile Include="TestSystemMatrices.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -172,7 +172,7 @@
     <ClCompile Include="TestCircuitMutAcc.cpp">
       <SubType>
       </SubType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestCircuitMatrices|Win32'">true</ExcludedFromBuild>

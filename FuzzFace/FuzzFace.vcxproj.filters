@@ -27,7 +27,7 @@
     <ClCompile Include="TestCircuitMutAcc.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
-    <ClCompile Include="TestCircuitMatrices.cpp">
+    <ClCompile Include="TestSystemMatrices.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
   </ItemGroup>
