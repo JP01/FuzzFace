@@ -82,7 +82,33 @@ void Circuit::refreshNonLinStateSpace() {
 	Eigen::MatrixXd padO(numOutputs, numNodes + numInputs);
 	padO.block(0, 0, numOutputs, numNodes) = incidentOutput;
 	padO.block(0, numNodes, numOutputs, numInputs).setZero();
+	//Padded identity matrix
+	Eigen::MatrixXd padI(numInputs, numNodes + numInputs);
+	padI.block(0, 0, numInputs, numNodes).setZero();
+	padI.block(0, numNodes, numInputs, numInputs).setIdentity();
 
+	//Calculate State Space Matrices
+	A = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);
+	//std::cout << A << std::endl;
+}
+
+
+//Return the specified state space matrix, takes cap
+Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
+
+	if (input == "A") { return A; }
+	if (input == "B") { return B; }
+	if (input == "C") { return C; }
+	if (input == "D") { return D; }
+	if (input == "E") { return E; }
+	if (input == "F") { return F; }
+	if (input == "G") { return G; }
+	if (input == "H") { return H; }
+	if (input == "K") { return K; }
+	else {
+		std::cout << "Input not recognised, defaulted output is matrix A";
+		return A;
+	}
 
 }
 

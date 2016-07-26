@@ -38,13 +38,10 @@ std::vector<double> TestHelper::readMatrixData(std::string fileName)
 //Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same
 bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatrix) 
 {
-	//Create an instance of Circuit
-	Circuit c;
-
 	//Initialise the total rows for looping 
 	int totalRows = inputMatrix.rows();
 	int totalCols = inputMatrix.cols();
-
+	
 	//create a vector to store the matlab generated matrix
 	std::vector<double> matlabResults;
 	//put the matlab results into the vector
@@ -54,23 +51,19 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 	int resultIndex = 0; //the index from the vector matlabResults
 	bool testPass = true; //Boolean flag used to determine the outcome of the testcase
 
-						  //Loop through all values of matlabResults and circuitSystemMatrix, Check corresponding values are equal and output error if not
+	//Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
 	for (int row = 0; row < totalRows; row++)
 	{
 		for (int col = 0; col < totalCols; col++) {
-			//Check if the value at matlabResult[resultIndex] is equal to the corresponding value in the c.getSystemMatrix()
+			//Check if the value at matlabResult[resultIndex] is equal to the corresponding value in the inputMatrix
 			if (matlabResults[resultIndex] != inputMatrix(row, col)) {
 				//if false, print error and erronious data
 				std::cout << "An error occured, " << matlabResults[resultIndex] << " does not equal " << inputMatrix(row, col) << std::endl;
 				//set the testPass to false, letting Boost know the testcase has failed
 				testPass = false;
 			}
-
 			resultIndex++;  //increment the resultIndex to move to next value in the matlabResults vector
 		}
-
 	}
-
-
 	return testPass;
 }

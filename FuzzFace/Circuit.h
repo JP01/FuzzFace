@@ -27,12 +27,17 @@ class Circuit
 		void setVol(double volVal);     //function used to set volume parameter
 		double getVol();                 //returns the volume parameter
 
-		//System Matrix 12x12
+		//StateSpaceMatrices
+		Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input
+
+
+		//System Matrix 
 		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
 		Eigen::Matrix<double, 12, 12> getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
 
 		//Refresh All matrices, call when paramater change needs to be implemented
-		void refresh() { refreshNonLinStateSpace(); refreshSystemMatrix(); refreshNonlinearFunctions(); }
+		void refresh() {  refreshSystemMatrix(); refreshNonLinStateSpace(); refreshNonlinearFunctions(); }
+
 
 
 	private: //access control
@@ -131,7 +136,7 @@ class Circuit
 		void refreshSystemMatrix();  //function to setup and refrseh the system matrix
 
 		//Setup functions for nonlinear state space terms
-		Eigen::Matrix<double, 3, 3> A;
+		Eigen::Matrix<double, 3, 3> A;    
 		Eigen::Matrix<double, 3, 2> B;
 		Eigen::Matrix<double, 3, 4> C;
 		Eigen::Matrix<double, 1, 3> D;
