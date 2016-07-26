@@ -1,6 +1,10 @@
 #include <iostream>
 #include "Circuit.h"
 
+
+
+
+
 void main() {
 	std::cout << "Main program" << std::endl;
 
@@ -12,8 +16,5 @@ void main() {
 
 	std::cout << "The current fuzz is : " << fuzz << std::endl;
 	std::cout << "The current vol is : " << vol << std::endl;
-
-	
-
 
 }
