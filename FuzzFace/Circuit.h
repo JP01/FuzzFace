@@ -2,6 +2,7 @@
 // Header file for the Circuit.cpp class which contains
 // all the circuit parameters
 #include "Eigen/Dense"
+#include <iostream>
 
 class Circuit
 {
@@ -30,7 +31,10 @@ class Circuit
 		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
 		Eigen::Matrix<double, 12, 12> getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
 
-		
+		//Refresh All matrices, call when paramater change needs to be implemented
+		void refresh() { refreshNonLinStateSpace(); refreshSystemMatrix(); refreshNonlinearFunctions(); }
+
+
 	private: //access control
 		double fuzz;  //value for the fuzz parameter
 		double vol;   //value for the vol parameter
@@ -115,6 +119,9 @@ class Circuit
 		Eigen::Matrix<double, numNonLin, numNodes> incidentNonlinearities;  //incident nonlinearity matrix
 		Eigen::Matrix<double, numOutputs, numNodes> incidentOutput;  //incident output matrix
 	
+		/**
+		* State Space Matrices
+		*/
 		//Setup functions for the system matrix
 		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemRes;  //Resistor matrix used in calculation of system matrix
 		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemCap;  //Capacitor matrix used in calculation of system matrix
@@ -123,4 +130,26 @@ class Circuit
 		
 		void refreshSystemMatrix();  //function to setup and refrseh the system matrix
 
+		//Setup functions for nonlinear state space terms
+		Eigen::Matrix<double, 3, 3> A;
+		Eigen::Matrix<double, 3, 2> B;
+		Eigen::Matrix<double, 3, 4> C;
+		Eigen::Matrix<double, 1, 3> D;
+		Eigen::Matrix<double, 1, 2> E;
+		Eigen::Matrix<double, 1, 4> F;
+		Eigen::Matrix<double, 4, 3> G;
+		Eigen::Matrix<double, 4, 2> H;
+		Eigen::Matrix<double, 4, 4> K;
+
+		void refreshNonLinStateSpace();
+
+
+		/*
+		*   Nonlinear function matrices
+		*/
+
+
+
+
+		void refreshNonlinearFunctions();
 };

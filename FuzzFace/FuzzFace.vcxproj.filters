@@ -30,10 +30,19 @@
     <ClCompile Include="TestSystemMatrices.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
+    <ClCompile Include="TestNonlinearStateSpaceTerms.cpp">
+      <Filter>UnitTests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestHelper.cpp">
+      <Filter>UnitTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circuit.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestHelper.h">
+      <Filter>UnitTests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

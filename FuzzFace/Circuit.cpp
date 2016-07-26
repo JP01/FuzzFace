@@ -1,6 +1,5 @@
 #include "Circuit.h"
-#include <iostream>
-#include "Eigen/Dense"
+
 
 /*Default Constructor*/
 //Circuit::Circuit() { std::cout << "Circuit Created!" << std::endl; };
@@ -20,8 +19,9 @@ Circuit::Circuit(double sampleRate) :T(1./sampleRate){
 		//Initialise the incident matrices
 		initialiseIncidentMatrices();
 
-		//Initialise the system matrix
-		refreshSystemMatrix();
+		//Initialise the system matrices
+		refresh();
+
 }
 
 /*Function to populate the circuit matrices*/
@@ -47,7 +47,7 @@ void Circuit::updateCircuitMatrices() {
 	
 }
 
-/* Function used to refresh the system matrix, call when fuzz or vol is changed */
+/* Function used to refresh the system matrix, call when fuzz or vol is changed, called by refresh() */
 void Circuit::refreshSystemMatrix() {
 	//Update the circuit matrices
 	updateCircuitMatrices();
@@ -65,6 +65,32 @@ void Circuit::refreshSystemMatrix() {
 	systemMatrix.block(numNodes, numNodes, numInputs, numInputs).setZero();  //sets the last 2x2 matrix in the bottom right corner to 0
 
 }
+
+
+/* Function used to refrseh the nonlinear state space terms, called by refresh()*/
+void Circuit::refreshNonLinStateSpace() {
+	/* Padded matrices used in state space term calculations*/
+	//Padded Capacitor Matrix
+	Eigen::MatrixXd padC(numCap, numNodes + numInputs);
+	padC.block(0, 0, numCap, numNodes) = incidentCapacitors;
+	padC.block(0, numNodes, numCap, numInputs).setZero();
+	//Padded NonLinearity Matrix
+	Eigen::MatrixXd padNL(numNonLin, numNodes + numInputs);
+	padNL.block(0, 0, numNonLin, numNodes) = incidentNonlinearities;
+	padNL.block(0, numNodes, numNonLin, numInputs).setZero();
+	//Padded output Matrix
+	Eigen::MatrixXd padO(numOutputs, numNodes + numInputs);
+	padO.block(0, 0, numOutputs, numNodes) = incidentOutput;
+	padO.block(0, numNodes, numOutputs, numInputs).setZero();
+
+
+}
+
+/* Function used to refresh the nonlinear function matrices, called by refresh() */
+void Circuit::refreshNonlinearFunctions() {
+	//To do
+}
+
 
 /* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal > 1, default to 0.6 */
 void Circuit::setFuzz(double fuzzVal) {
@@ -103,6 +129,7 @@ double Circuit::getVol()
 {
 	return vol;
 }
+
 
 /*Default Destructor */
 Circuit::~Circuit() {
