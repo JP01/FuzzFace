@@ -89,6 +89,15 @@ void Circuit::refreshNonLinStateSpace() {
 
 	//Calculate State Space Matrices
 	A = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);
+	B = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padI.transpose());
+	C = -2 *diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padNL.transpose());
+	D = padO*systemMatrix.partialPivLu().solve(padC.transpose());
+	E = padO*systemMatrix.partialPivLu().solve(padI.transpose());
+	F = -padO*systemMatrix.partialPivLu().solve(padNL.transpose());
+	G = padNL*systemMatrix.partialPivLu().solve(padC.transpose());
+	H = padNL*systemMatrix.partialPivLu().solve(padI.transpose());
+	K = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose());
+
 	//std::cout << A << std::endl;
 }
 
