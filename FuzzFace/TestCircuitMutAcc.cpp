@@ -5,19 +5,19 @@
 #include "Circuit.h"
 
 /*Declaration of test parameters*/
-/* Fuzz Range - 0 < fuzz <= 1 */
+/* Fuzz Range - 0 < fuzz < 1 */
 double fuzzInvalidLower = 0;
 double fuzzValidLower = 0.01;
 double fuzzValid = 0.5; 
-double fuzzValidUpper = 1;
-double fuzzInvalidUpper = 1.01;
+double fuzzValidUpper = 0.99;
+double fuzzInvalidUpper = 1;
 
-/* Vol Range - 0 < vol <= 1 */
+/* Vol Range - 0 < vol < 1 */
 double volInvalidLower = 0;
 double volValidLower = 0.01;
 double volValid = 0.5;
-double volValidUpper = 1;
-double volInvalidUpper = 1.01;
+double volValidUpper = 0.99;
+double volInvalidUpper = 1;
 
 double defaultFuzz = 0.6;
 double defaultVol = 0.4;

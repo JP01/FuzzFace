@@ -68,10 +68,10 @@ void Circuit::refreshSystemMatrix() {
 
 }
 
-/* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal >= 1, default to 0.6 */
+/* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal > 1, default to 0.6 */
 void Circuit::setFuzz(double fuzzVal) {
 	//Checks fuzzVal is within allowable range
-	if (fuzzVal > 0 && fuzzVal <= 1) {
+	if (fuzzVal > 0 && fuzzVal < 1) {
 		fuzz = fuzzVal;
 	}
 	else {
@@ -87,10 +87,10 @@ double Circuit::getFuzz()
 	return fuzz;
 }
 
-/* Create a setter for the Vol parameter, when input is outside the allowable range 0 > volVal >= 1, default to 0.4 */
+/* Create a setter for the Vol parameter, when input is outside the allowable range 0 > volVal > 1, default to 0.4 */
 void Circuit::setVol(double volVal) {
 	//Checks volVal is within allowable range
-	if (volVal > 0 && volVal <= 1) {
+	if (volVal > 0 && volVal < 1) {
 		vol = volVal;
 	}
 	else {
