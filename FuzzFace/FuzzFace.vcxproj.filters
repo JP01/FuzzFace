@@ -36,6 +36,9 @@
     <ClCompile Include="TestHelper.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
+    <ClCompile Include="TestNonlinearFunctionMatrices.cpp">
+      <Filter>UnitTests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circuit.h">

@@ -20,7 +20,6 @@ std::string stateSpaceG = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/st
 std::string stateSpaceH = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/stateSpaceFromMatlabH.txt";
 std::string stateSpaceK = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/stateSpaceFromMatlabK.txt";
 
-
 //Create an instance of Default Circuit and TestHelper
 Circuit c;
 TestHelper th;

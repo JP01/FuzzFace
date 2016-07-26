@@ -102,7 +102,7 @@ void Circuit::refreshNonLinStateSpace() {
 }
 
 
-//Return the specified state space matrix, takes cap
+//Return the specified state space matrix, takes capital letters only
 Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
 
 	if (input == "A") { return A; }
@@ -123,7 +123,32 @@ Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
 
 /* Function used to refresh the nonlinear function matrices, called by refresh() */
 void Circuit::refreshNonlinearFunctions() {
-	//To do
+	//Input the psi values
+	psi << 1 / forwardGain, 1 / reverseGain, 0, 0,
+		1, -(reverseGain + 1) / reverseGain, 0, 0,
+		0, 0, 1 / forwardGain, 1 / reverseGain,
+		0, 0, 1, -(reverseGain + 1) / reverseGain;
+
+	phi << 1, 0, 0, 0,
+		1, -1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 1, -1;
+
+	Kd << -K*psi;
+
+	M = Kd.inverse()*phi.inverse();
+}
+
+//Return the specified nonlinear function matrix
+Eigen::MatrixXd Circuit::getNonlinearFunctionMatrix(std::string input) {
+	if (input == "psi") { return psi; }
+	if (input == "phi") { return phi; }
+	if (input == "M") { return M; }
+	if (input == "Kd") { return Kd; }
+	else {
+		std::cout << "Input not recognised, defaulted output is matrix PSI";
+		return psi;
+	}
 }
 
 

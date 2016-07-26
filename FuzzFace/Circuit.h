@@ -28,8 +28,10 @@ class Circuit
 		double getVol();                 //returns the volume parameter
 
 		//StateSpaceMatrices
-		Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input
-
+		Eigen::MatrixXd getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input string, used in testing
+		
+		//Nonlinear Function Matrices
+		Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input); //Returns the nonlinear function matrix corresponding to the input string, used in testing
 
 		//System Matrix 
 		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
@@ -152,8 +154,10 @@ class Circuit
 		/*
 		*   Nonlinear function matrices
 		*/
-
-
+		Eigen::Matrix<double, 4, 4> psi;
+		Eigen::Matrix<double, 4, 4> phi;
+		Eigen::Matrix<double, 4, 4> M;
+		Eigen::Matrix<double, 4, 4> Kd;
 
 
 		void refreshNonlinearFunctions();
