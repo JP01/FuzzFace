@@ -1,10 +1,12 @@
 #include "TestHelper.h"
 
+//Default Constructor
 TestHelper::TestHelper()
 {
+	acceptableError = 1e-14;
 }
 
-
+//Default Destructor
 TestHelper::~TestHelper()
 {
 }
@@ -31,6 +33,8 @@ std::vector<double> TestHelper::readMatrixData(std::string fileName)
 		}
 	}
 
+	//Close the resource
+	infile.close();
 	//return the vector storing the data from the file
 	return data;
 }
@@ -55,13 +59,22 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 	for (int row = 0; row < totalRows; row++)
 	{
 		for (int col = 0; col < totalCols; col++) {
-			//Check if the value at matlabResult[resultIndex] is equal to the corresponding value in the inputMatrix
-			if (matlabResults[resultIndex] != inputMatrix(row, col)) {
-				//if false, print error and erronious data
-				std::cout << "An error occured, " << matlabResults[resultIndex] << " does not equal " << inputMatrix(row, col) << std::endl;
-				//set the testPass to false, letting Boost know the testcase has failed
-				testPass = false;
-			}
+
+				/*Check each value for any differences, if there is a difference print an error message */
+				double difference = 0;
+				difference = matlabResults[resultIndex] - inputMatrix(row, col);
+
+				//If the difference is greater than acceptableError then output error and fail the test 
+				// "-difference" accounts for the difference being a negative number
+				if (difference > acceptableError || -difference > acceptableError) {
+					//Increase precision, used for error checking
+					std::cout.precision(32);
+					//if false, print error and erronious data
+					std::cout << "\nAn error occured, Matlab Result: \t" << matlabResults[resultIndex] << "\n   does not equal Eigen Result: \t" << inputMatrix(row, col) << "\n The difference is : " << difference << std::endl;
+					//set the testPass to false, letting Boost know the testcase has failed
+					testPass = false;
+				}
+			
 			resultIndex++;  //increment the resultIndex to move to next value in the matlabResults vector
 		}
 	}

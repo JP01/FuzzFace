@@ -29,12 +29,13 @@ print("An error occured, " << testMatrix(i,o) << " does not equal " << systemMat
 */
 
 
-
 class TestHelper
 {
 public:
 	TestHelper();
 	~TestHelper();
+
+	double acceptableError;
 
 	//Read matrix data from a file and return it as a vector of type double
 	std::vector<double> readMatrixData(std::string fileName);
