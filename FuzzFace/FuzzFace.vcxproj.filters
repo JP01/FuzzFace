@@ -39,6 +39,9 @@
     <ClCompile Include="TestNonlinearFunctionMatrices.cpp">
       <Filter>UnitTests</Filter>
     </ClCompile>
+    <ClCompile Include="Simulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circuit.h">
@@ -46,6 +49,12 @@
     </ClInclude>
     <ClInclude Include="TestHelper.h">
       <Filter>UnitTests</Filter>
+    </ClInclude>
+    <ClInclude Include="Simulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMatrixTypes.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

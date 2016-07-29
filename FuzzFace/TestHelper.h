@@ -24,8 +24,6 @@ else
 print("An error occured, " << testMatrix(i,o) << " does not equal " << systemMatrix(i,o);
 }
 
-
-
 */
 
 

@@ -164,6 +164,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestCircuitMatrices|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="TestHelper.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -195,6 +196,8 @@
     <ClInclude Include="Circuit.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='TestCircuitMatrices|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="MyMatrixTypes.h" />
+    <ClInclude Include="Simulation.h" />
     <ClInclude Include="TestHelper.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='UnitTests|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

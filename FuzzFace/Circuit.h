@@ -1,8 +1,11 @@
 #pragma once
+
 // Header file for the Circuit.cpp class which contains
 // all the circuit parameters
-#include "Eigen/Dense"
+#include "MyMatrixTypes.h"
 #include <iostream>
+
+
 
 class Circuit
 {
@@ -27,18 +30,19 @@ class Circuit
 		void setVol(double volVal);     //function used to set volume parameter
 		double getVol();                 //returns the volume parameter
 
-		//StateSpaceMatrices
+		//StateSpaceMatrices, returns a dynamically sized matrix due to unknown size at compile time
 		Eigen::MatrixXd getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input string, used in testing
 		
-		//Nonlinear Function Matrices
+		//Nonlinear Function Matrices, returns a dynamically sized matrix due to unknown size at compile time
 		Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input); //Returns the nonlinear function matrix corresponding to the input string, used in testing
 
-		//System Matrix 
-		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
-		Eigen::Matrix<double, 12, 12> getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
-
+		//Initial setup functions
+		void setup();
 		//Refresh All matrices, call when paramater change needs to be implemented
-		void refresh() {  refreshSystemMatrix(); refreshNonLinStateSpace(); refreshNonlinearFunctions(); }
+		void refreshAll();
+
+		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
+		SystemMatrix getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
 
 
 
@@ -68,96 +72,63 @@ class Circuit
 		const double saturationCurrent = 1e-14;
 
 		/*Circuit matrices*/
+		void populateCircuitMatrices();	//populate circuit matrices, performed at setup
+		void refreshCircuitMatrices();	//update the circuit matrices
+
 		//Resistor Matrices
-		Eigen::Matrix<double, 1, 8> resMatrix;  //1row 8col - resistor matrix
-		Eigen::MatrixXd diagResMatrix;          //diagonal - resistor matrix
+		ResMatrix resMatrix;  //1row 8col - resistor matrix
+		DiagRes diagResMatrix;          //diagonal - resistor matrix
 	
 		//Capacitor Matrices
-		Eigen::Matrix<double, 1, 3> capMatrix;  //1row 3col - capacitor matrix
-		Eigen::MatrixXd diagCapMatrix;          //diagonal - capacitor matrix
+		CapMatrix capMatrix;           //1row 3col - capacitor matrix
+		DiagCap diagCapMatrix;          //diagonal - capacitor matrix
 		
-		//Populate the circuit matrices
-		void updateCircuitMatrices();
 
-		//Incident Matrices
-		const static int numNodes = 10;  //10 Nodes
-		const static int numRes = 8;  //Number of Resistors
-		const static int numCap = 3;  //Number of Capacitors
-		const static int numInputs = 2;  //Number of inputs
-		const static int numNonLin = 4; //Number of nonlinearities
-		const static int numOutputs = 1; //Number of outputs
-		
-		/*One time setup of incident matrices, this is performed in the constructor and sets up the incident matrices*/
-		void Circuit::initialiseIncidentMatrices() {
+		/*Incident Matrices*/
+		void initialiseIncidentMatrices(); //One time setup of incident matrices, this is performed in the constructor and sets up the incident matrices
 
-			//The incident matrix for the resistors
-			incidentResistors <<
-				0, 0, -1, 1, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, -1, 1, 0, 0, 0, 0,
-				0, 0, 0, 1, 0, -1, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0, 1, -1,
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-				0, 1, 0, 0, 0, 0, -1, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 1, -1, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 1, 0, 0;
-
-			incidentCapacitors <<
-				1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-				0, 0, 0, 0, 0, 1, 0, 0, -1, 0;
-
-			incidentVoltage <<
-				1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, -1, 0, 0, 0, 0, 0, 0;
-
-			incidentNonlinearities <<
-				0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
-				0, 0, -1, 0, 0, 0, 1, 0, 0, 0,
-				0, 0, 0, 0, -1, 0, 1, 0, 0, 0;
-
-			incidentOutput <<
-				0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
-		}
-
-		Eigen::Matrix<double, numRes, numNodes> incidentResistors;    //incident resistor matrix
-		Eigen::Matrix<double, numCap, numNodes> incidentCapacitors;   //incident capacitor matrix
-		Eigen::Matrix<double, numInputs, numNodes> incidentVoltage;   //incident voltage matrix
-		Eigen::Matrix<double, numNonLin, numNodes> incidentNonlinearities;  //incident nonlinearity matrix
-		Eigen::Matrix<double, numOutputs, numNodes> incidentOutput;  //incident output matrix
+		IncidentRes incidentResistors;    //incident resistor matrix
+		IncidentCap incidentCapacitors;   //incident capacitor matrix
+		IncidentVoltage incidentVoltage;   //incident voltage matrix
+		IncidentNonLin incidentNonlinearities;  //incident nonlinearity matrix
+		IncidentOutput incidentOutput;  //incident output matrix
 	
 		/**
 		* State Space Matrices
 		*/
 		//Setup functions for the system matrix
-		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemRes;  //Resistor matrix used in calculation of system matrix
-		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> systemCap;  //Capacitor matrix used in calculation of system matrix
+		IntermediateSystemMatrix systemRes;  //Resistor matrix used in calculation of system matrix
+		IntermediateSystemMatrix systemCap;  //Capacitor matrix used in calculation of system matrix
 		
-		Eigen::Matrix<double, numNodes+numInputs, numNodes + numInputs> systemMatrix;  //Create a 12x12 system matrix
+		SystemMatrix systemMatrix;  //Create a 12x12 system matrix
 		
 		void refreshSystemMatrix();  //function to setup and refrseh the system matrix
 
-		//Setup functions for nonlinear state space terms
-		Eigen::Matrix<double, 3, 3> A;    
-		Eigen::Matrix<double, 3, 2> B;
-		Eigen::Matrix<double, 3, 4> C;
-		Eigen::Matrix<double, 1, 3> D;
-		Eigen::Matrix<double, 1, 2> E;
-		Eigen::Matrix<double, 1, 4> F;
-		Eigen::Matrix<double, 4, 3> G;
-		Eigen::Matrix<double, 4, 2> H;
-		Eigen::Matrix<double, 4, 4> K;
+		//Setup functions for the state space terms
+		PaddedCap padC;
+		PaddedNonLin padNL;
+		PaddedOutput padO;
+		PaddedInput padI;
+
+		StateSpaceA A;    
+		StateSpaceB B;
+		StateSpaceC C;
+		StateSpaceD D;
+		StateSpaceE E;
+		StateSpaceF F;
+		StateSpaceG G;
+		StateSpaceH H;
+		StateSpaceK K;
 
 		void refreshNonLinStateSpace();
 
-
 		/*
-		*   Nonlinear function matrices
+		*   Nonlinear function matrices, set as 4x4 matrices
 		*/
-		Eigen::Matrix<double, 4, 4> psi;
-		Eigen::Matrix<double, 4, 4> phi;
-		Eigen::Matrix<double, 4, 4> M;
-		Eigen::Matrix<double, 4, 4> Kd;
+		NonlinearFunctionMatrix psi;
+		NonlinearFunctionMatrix phi;
+		NonlinearFunctionMatrix M;
+		NonlinearFunctionMatrix Kd;
 
 
 		void refreshNonlinearFunctions();

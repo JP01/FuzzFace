@@ -10,23 +10,29 @@ Circuit::Circuit() : Circuit(44100.) {};
 /*Constructor which takes sampleRate as an arguement and initialises the sampling period T to 1./sampleRate */
 Circuit::Circuit(double sampleRate) :T(1./sampleRate){
 
-		//Initialise controllable paramaters
-		setVol(defaultVol);
-		setFuzz(defaultFuzz);
-
 		std::cout << "Circuit Created" << std::endl;
-	
-		//Initialise the incident matrices
-		initialiseIncidentMatrices();
 
-		//Initialise the system matrices
-		refresh();
+		//Perform initial setup of the circuit
+		setup();
 
 }
 
-/*Function to populate the circuit matrices*/
-void Circuit::updateCircuitMatrices() {
-	
+/* Initial setup of default circuit values and parmaters*/
+void Circuit::setup() {
+	/* Setup */
+	//Initialise controllable paramaters
+	setVol(defaultVol);
+	setFuzz(defaultFuzz);
+	//Populate circuit matrices
+	populateCircuitMatrices();
+	//Initialise the incident matrices
+	initialiseIncidentMatrices();
+	//Initialise the system matrices
+	refreshAll();
+}
+
+/* Initial setup of circuit matrices */
+void Circuit::populateCircuitMatrices() {
 	//Update the resistor values
 	r4 = (1 - vol)*500e3;
 	r5 = vol*500e3;
@@ -37,20 +43,82 @@ void Circuit::updateCircuitMatrices() {
 	resMatrix << 1 / r1, 1 / r2, 1 / r3, 1 / r4, 1 / r5, 1 / r6, 1 / r7, 1 / r8;
 
 	//prep the capacitor values for input into diagonal matrix
-	capMatrix << c1,c2,c3;
-	capMatrix = (2 * capMatrix)/T;
-	
+	capMatrix << c1, c2, c3;
+	capMatrix = (2 * capMatrix) / T;
+
 	//Convert the matrices to diagonal matrices
 	diagResMatrix = resMatrix.asDiagonal();
 	diagCapMatrix = capMatrix.asDiagonal();
 
+}
+
+/*One time setup of incident matrices, this is performed in the constructor and sets up the incident matrices*/
+void Circuit::initialiseIncidentMatrices() {
+
+	//The incident matrix for the resistors
+	incidentResistors <<
+		0, 0, -1, 1, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, -1, 1, 0, 0, 0, 0,
+		0, 0, 0, 1, 0, -1, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 1, -1,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+		0, 1, 0, 0, 0, 0, -1, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 1, -1, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 1, 0, 0;
+
+	//The incident matrix for the Capacitors
+	incidentCapacitors <<
+		1, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+		0, 0, 0, 0, 0, 1, 0, 0, -1, 0;
+
+	//The incident matrix for Voltage
+	incidentVoltage <<
+		1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, -1, 0, 0, 0, 0, 0, 0;
+
+	//The incident matrix for the nonlinearities
+	incidentNonlinearities <<
+		0, -1, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, -1, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, -1, 0, 0, 0, 1, 0, 0, 0,
+		0, 0, 0, 0, -1, 0, 1, 0, 0, 0;
+
+	//The incident matrix for the output
+	incidentOutput <<
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 1;
+}
+
+/* Refresh all matrices in the system when fuzz or vol changes*/
+void Circuit::refreshAll() {
+	refreshCircuitMatrices(); 
+	refreshSystemMatrix(); 
+	refreshNonLinStateSpace(); 
+	refreshNonlinearFunctions();
+}
+
+/*Function to populate the circuit matrices*/
+void Circuit::refreshCircuitMatrices() {
 	
+	//Update the resistor values
+	r4 = (1 - vol)*500e3;
+	r5 = vol*500e3;
+	r7 = fuzz*1e3;
+	r8 = (1 - fuzz)*1e3;
+
+	//update the variable resistor values
+	resMatrix(0, 3) = 1/r4;
+	resMatrix(0, 4) = 1/r5;
+	resMatrix(0, 6) = 1/r7;
+	resMatrix(0, 7) = 1/r8;
+
+	//Convert the matrices to diagonal matrices
+	diagResMatrix = resMatrix.asDiagonal();
+
 }
 
 /* Function used to refresh the system matrix, call when fuzz or vol is changed, called by refresh() */
 void Circuit::refreshSystemMatrix() {
-	//Update the circuit matrices
-	updateCircuitMatrices();
 	
 	//Update the matrix systemRes with the resistor element of the system Matrix
 	systemRes = (incidentResistors.transpose())*diagResMatrix*incidentResistors;
@@ -66,41 +134,36 @@ void Circuit::refreshSystemMatrix() {
 
 }
 
-
 /* Function used to refrseh the nonlinear state space terms, called by refresh()*/
 void Circuit::refreshNonLinStateSpace() {
 	/* Padded matrices used in state space term calculations*/
 	//Padded Capacitor Matrix
-	Eigen::MatrixXd padC(numCap, numNodes + numInputs);
 	padC.block(0, 0, numCap, numNodes) = incidentCapacitors;
 	padC.block(0, numNodes, numCap, numInputs).setZero();
+	
 	//Padded NonLinearity Matrix
-	Eigen::MatrixXd padNL(numNonLin, numNodes + numInputs);
 	padNL.block(0, 0, numNonLin, numNodes) = incidentNonlinearities;
 	padNL.block(0, numNodes, numNonLin, numInputs).setZero();
+
 	//Padded output Matrix
-	Eigen::MatrixXd padO(numOutputs, numNodes + numInputs);
 	padO.block(0, 0, numOutputs, numNodes) = incidentOutput;
 	padO.block(0, numNodes, numOutputs, numInputs).setZero();
+
 	//Padded identity matrix
-	Eigen::MatrixXd padI(numInputs, numNodes + numInputs);
 	padI.block(0, 0, numInputs, numNodes).setZero();
 	padI.block(0, numNodes, numInputs, numInputs).setIdentity();
 
 	//Calculate State Space Matrices
-	A = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);
-	B = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padI.transpose());
-	C = -2 *diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padNL.transpose());
-	D = padO*systemMatrix.partialPivLu().solve(padC.transpose());
-	E = padO*systemMatrix.partialPivLu().solve(padI.transpose());
-	F = -padO*systemMatrix.partialPivLu().solve(padNL.transpose());
-	G = padNL*systemMatrix.partialPivLu().solve(padC.transpose());
-	H = padNL*systemMatrix.partialPivLu().solve(padI.transpose());
-	K = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose());
-
-	//std::cout << A << std::endl;
+	A = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);  //populate
+	B = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	C = -2 *diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
+	D = padO*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
+	E = padO*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	F = -padO*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
+	G = padNL*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
+	H = padNL*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	K = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
 }
-
 
 //Return the specified state space matrix, takes capital letters only
 Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
@@ -129,13 +192,16 @@ void Circuit::refreshNonlinearFunctions() {
 		0, 0, 1 / forwardGain, 1 / reverseGain,
 		0, 0, 1, -(reverseGain + 1) / reverseGain;
 
+	//Input the phi values
 	phi << 1, 0, 0, 0,
 		1, -1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 1, -1;
 
+	//Input the Kd values
 	Kd << -K*psi;
 
+	//Input the M values
 	M = Kd.inverse()*phi.inverse();
 }
 
@@ -150,7 +216,6 @@ Eigen::MatrixXd Circuit::getNonlinearFunctionMatrix(std::string input) {
 		return psi;
 	}
 }
-
 
 /* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal > 1, default to 0.6 */
 void Circuit::setFuzz(double fuzzVal) {
@@ -189,7 +254,6 @@ double Circuit::getVol()
 {
 	return vol;
 }
-
 
 /*Default Destructor */
 Circuit::~Circuit() {

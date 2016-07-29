@@ -9,10 +9,6 @@
 #include <iostream>
 #include "Eigen/Dense"
 
-
-
-
-
 /*
 Test Data 
 */
