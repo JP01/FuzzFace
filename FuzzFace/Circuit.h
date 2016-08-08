@@ -23,12 +23,16 @@ class Circuit
 
 		/*Accessors and Mutators*/
 		//Fuzz
-		void setFuzz(double fuzzVal);   //function used to set fuzz paramater
+		void setFuzz(double _fuzz);   //function used to set fuzz paramater
 		double getFuzz();                //returns the fuzz parameter
 
 		//Vol
-		void setVol(double volVal);     //function used to set volume parameter
+		void setVol(double _vol);     //function used to set volume parameter
 		double getVol();                 //returns the volume parameter
+
+		double getSaturationCurrent(); //returns the circuit's saturation current IS
+		double getThermalVoltage(); //returns the circuit's thermal voltage VT
+
 
 		//StateSpaceMatrices, returns a dynamically sized matrix due to unknown size at compile time
 		Eigen::MatrixXd getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input string, used in testing
@@ -110,25 +114,25 @@ class Circuit
 		PaddedOutput padO;
 		PaddedInput padI;
 
-		StateSpaceA A;    
-		StateSpaceB B;
-		StateSpaceC C;
-		StateSpaceD D;
-		StateSpaceE E;
-		StateSpaceF F;
-		StateSpaceG G;
-		StateSpaceH H;
-		StateSpaceK K;
+		StateSpaceA stateSpaceA;    
+		StateSpaceB stateSpaceB;
+		StateSpaceC stateSpaceC;
+		StateSpaceD stateSpaceD;
+		StateSpaceE stateSpaceE;
+		StateSpaceF stateSpaceF;
+		StateSpaceG stateSpaceG;
+		StateSpaceH stateSpaceH;
+		StateSpaceK stateSpaceK;
 
 		void refreshNonLinStateSpace();
 
 		/*
 		*   Nonlinear function matrices, set as 4x4 matrices
 		*/
-		NonlinearFunctionMatrix psi;
-		NonlinearFunctionMatrix phi;
-		NonlinearFunctionMatrix M;
-		NonlinearFunctionMatrix Kd;
+		NonlinearFunctionMatrix psi; //Ebers-moller term
+		NonlinearFunctionMatrix phi; //Ebers-moller term
+		NonlinearFunctionMatrix nonLinEquationMatrix;   //Nonlinear equation matrix (MATLAB - M)
+		NonlinearFunctionMatrix alteredStateSpaceK;  //Kd is an altered form of the K statespace matrix (MATLAB - kd)
 
 
 		void refreshNonlinearFunctions();

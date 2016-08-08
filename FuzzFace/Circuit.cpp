@@ -154,32 +154,32 @@ void Circuit::refreshNonLinStateSpace() {
 	padI.block(0, numNodes, numInputs, numInputs).setIdentity();
 
 	//Calculate State Space Matrices
-	A = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);  //populate
-	B = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
-	C = -2 *diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
-	D = padO*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
-	E = padO*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
-	F = -padO*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
-	G = padNL*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
-	H = padNL*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
-	K = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
+	stateSpaceA = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padC.transpose()) - Eigen::MatrixXd::Identity(3, 3);  //populate
+	stateSpaceB = 2 * diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	stateSpaceC = -2 *diagCapMatrix*padC*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
+	stateSpaceD = padO*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
+	stateSpaceE = padO*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	stateSpaceF = -padO*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
+	stateSpaceG = padNL*systemMatrix.partialPivLu().solve(padC.transpose()); //populate
+	stateSpaceH = padNL*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
+	stateSpaceK = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
 }
 
 //Return the specified state space matrix, takes capital letters only
 Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
 
-	if (input == "A") { return A; }
-	if (input == "B") { return B; }
-	if (input == "C") { return C; }
-	if (input == "D") { return D; }
-	if (input == "E") { return E; }
-	if (input == "F") { return F; }
-	if (input == "G") { return G; }
-	if (input == "H") { return H; }
-	if (input == "K") { return K; }
+	if (input == "A") { return stateSpaceA; }
+	if (input == "B") { return stateSpaceB; }
+	if (input == "C") { return stateSpaceC; }
+	if (input == "D") { return stateSpaceD; }
+	if (input == "E") { return stateSpaceE; }
+	if (input == "F") { return stateSpaceF; }
+	if (input == "G") { return stateSpaceG; }
+	if (input == "H") { return stateSpaceH; }
+	if (input == "K") { return stateSpaceK; }
 	else {
 		std::cout << "Input not recognised, defaulted output is matrix A";
-		return A;
+		return stateSpaceA;
 	}
 
 }
@@ -199,18 +199,18 @@ void Circuit::refreshNonlinearFunctions() {
 		0, 0, 1, -1;
 
 	//Input the Kd values
-	Kd << -K*psi;
+	alteredStateSpaceK << -stateSpaceK*psi;
 
 	//Input the M values
-	M = Kd.inverse()*phi.inverse();
+	nonLinEquationMatrix = alteredStateSpaceK.inverse()*phi.inverse();
 }
 
 //Return the specified nonlinear function matrix
 Eigen::MatrixXd Circuit::getNonlinearFunctionMatrix(std::string input) {
 	if (input == "psi") { return psi; }
 	if (input == "phi") { return phi; }
-	if (input == "M") { return M; }
-	if (input == "Kd") { return Kd; }
+	if (input == "nonLinEquationMatrix") { return nonLinEquationMatrix; }
+	if (input == "alteredStateSpaceK") { return alteredStateSpaceK; }
 	else {
 		std::cout << "Input not recognised, defaulted output is matrix PSI";
 		return psi;
@@ -218,10 +218,10 @@ Eigen::MatrixXd Circuit::getNonlinearFunctionMatrix(std::string input) {
 }
 
 /* Create a setter for the Fuzz parameter, when input is outside the allowable range 0 > fuzzVal > 1, default to 0.6 */
-void Circuit::setFuzz(double fuzzVal) {
+void Circuit::setFuzz(double _fuzz) {
 	//Checks fuzzVal is within allowable range
-	if (fuzzVal > 0 && fuzzVal < 1) {
-		fuzz = fuzzVal;
+	if (_fuzz > 0 && _fuzz < 1) {
+		fuzz = _fuzz;
 	}
 	else {
 		//Defaults value to 0.6 and prints a message
@@ -237,10 +237,10 @@ double Circuit::getFuzz()
 }
 
 /* Create a setter for the Vol parameter, when input is outside the allowable range 0 > volVal > 1, default to 0.4 */
-void Circuit::setVol(double volVal) {
+void Circuit::setVol(double _vol) {
 	//Checks volVal is within allowable range
-	if (volVal > 0 && volVal < 1) {
-		vol = volVal;
+	if (_vol > 0 && _vol < 1) {
+		vol = _vol;
 	}
 	else {
 		//Defaults value to 0.4 and prints a message
@@ -253,6 +253,18 @@ void Circuit::setVol(double volVal) {
 double Circuit::getVol() 
 {
 	return vol;
+}
+
+/* Returns the circuit saturation current IS */
+double Circuit::getSaturationCurrent()
+{
+	return saturationCurrent;
+}
+
+/* Returns the circuit thermal voltage VT*/
+double Circuit::getThermalVoltage()
+{
+	return thermalVoltage;
 }
 
 /*Default Destructor */

@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testNonlinearFunctionMatrixPHI) {
 BOOST_AUTO_TEST_CASE(testNonlinearFunctionMatrixM) {
 	//Create a matrix of doubles to store the result of c.getStateSpaceMatrix
 	Eigen::MatrixXd testMatrix;
-	testMatrix = c.getNonlinearFunctionMatrix("M");
+	testMatrix = c.getNonlinearFunctionMatrix("nonLinEquationMatrix");
 
 	bool testPass = true;
 	testPass = th.matrixChecker(M, testMatrix);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testNonlinearFunctionMatrixM) {
 BOOST_AUTO_TEST_CASE(testNonlinearFunctionMatrixKd) {
 	//Create a matrix of doubles to store the result of c.getStateSpaceMatrix
 	Eigen::MatrixXd testMatrix;
-	testMatrix = c.getNonlinearFunctionMatrix("Kd");
+	testMatrix = c.getNonlinearFunctionMatrix("alteredStateSpaceK");
 
 	bool testPass = true;
 	testPass = th.matrixChecker(Kd, testMatrix);
