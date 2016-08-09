@@ -165,7 +165,7 @@ void Circuit::refreshNonLinStateSpace() {
 	stateSpaceK = -padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
 }
 
-//Return the specified state space matrix, takes capital letters only
+//Return the specified state space matrix, takes capital letters only A-K
 Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
 
 	if (input == "A") { return stateSpaceA; }
@@ -178,7 +178,7 @@ Eigen::MatrixXd Circuit::getStateSpaceMatrix(std::string input) {
 	if (input == "H") { return stateSpaceH; }
 	if (input == "K") { return stateSpaceK; }
 	else {
-		std::cout << "Input not recognised, defaulted output is matrix A";
+		std::cout << "Input \"" << input << "\" not recognised, defaulted output is matrix A";
 		return stateSpaceA;
 	}
 
@@ -212,7 +212,7 @@ Eigen::MatrixXd Circuit::getNonlinearFunctionMatrix(std::string input) {
 	if (input == "nonLinEquationMatrix") { return nonLinEquationMatrix; }
 	if (input == "alteredStateSpaceK") { return alteredStateSpaceK; }
 	else {
-		std::cout << "Input not recognised, defaulted output is matrix PSI";
+		std::cout << "Input \"" << input << "\" not recognised, defaulted output is matrix PSI" << std::endl;
 		return psi;
 	}
 }

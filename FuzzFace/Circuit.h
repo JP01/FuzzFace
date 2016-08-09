@@ -35,10 +35,13 @@ class Circuit
 
 
 		//StateSpaceMatrices, returns a dynamically sized matrix due to unknown size at compile time
+		//Return the specified state space matrix, takes capital letters only A-K
 		Eigen::MatrixXd getStateSpaceMatrix(std::string input);  //Returns the statespace matrix corresponding to the input string, used in testing
 		
 		//Nonlinear Function Matrices, returns a dynamically sized matrix due to unknown size at compile time
-		Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input); //Returns the nonlinear function matrix corresponding to the input string, used in testing
+		//Returns the nonlinear function matrix corresponding to the input string, used in testing
+		//Acceptable arguements "psi", "phi", "nonLinEquationMatrix", "alteredStateSpaceK"
+		Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input); 
 
 		//Initial setup functions
 		void setup();

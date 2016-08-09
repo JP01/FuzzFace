@@ -1,6 +1,6 @@
 //Helper Class used in testing, contains methods for matrix reading and checking
 #pragma once
-
+#include <boost/test/unit_test.hpp>
 #include <iostream>
 #include "Circuit.h"
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "Eigen/Dense"
+#include "Simulation.h"
 
 /*
 Use matrix values from Matlab with default settings to create testMatrix

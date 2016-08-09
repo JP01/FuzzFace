@@ -1,13 +1,6 @@
 //#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-#include <iostream>
-#include "Circuit.h"
 #include "TestHelper.h"
-#include <fstream>
-#include <vector>
-#include <cstdlib>
-#include <iostream>
-#include "Eigen/Dense"
+
 
 /*
 Test Data 

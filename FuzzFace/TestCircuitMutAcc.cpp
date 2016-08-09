@@ -1,8 +1,6 @@
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
-#include <iostream>
-#include "Circuit.h"
+#include "TestHelper.h"
 
 /*Declaration of test parameters*/
 /* Fuzz Range - 0 < fuzz < 1 */
