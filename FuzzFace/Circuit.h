@@ -5,7 +5,8 @@
 #include "MyMatrixTypes.h"
 #include <iostream>
 
-
+//Define the default sample rates as 44.1kHz
+#define DEFAULT_SR 44100.
 
 class Circuit
 {
@@ -17,9 +18,12 @@ class Circuit
 		Circuit();
 
 		//Constructor with samplerate as an argument
-		Circuit(double sampleRate);
+		Circuit(double _sampleRate);
 		//Default Destructor
 		~Circuit();
+
+		//The samplerate of the system
+		double sampleRate;
 
 		/*Accessors and Mutators*/
 		//Fuzz
