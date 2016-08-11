@@ -50,13 +50,13 @@ void Simulation::setup()
 //Initialise the matrices used in the simulation
 void Simulation::initialiseSimulationParameters() {
 
-	//Set up a 3x1 vector stateVector and set all vals to 0
+	//Set up a 3x1 vector stateVector and set all vals to 0 - xz
 	stateSpaceVectorMem.setZero();
 
-	//Set up a 4x1 vector vdVector and set all vals to 0
+	//Set up a 4x1 vector vdVector and set all vals to 0 - vdz
 	nonLinVoltageVectorMem.setZero();
 
-	//Set up a 2x1 vector inputVector and set all vals to 0
+	//Set up a 2x1 vector inputVector and set all vals to 0 - u
 	inputVector.setZero();
 
 	//Set up a 1xbufferSize RowVector iteration collection and set all vals to 0
@@ -151,10 +151,11 @@ double Simulation::processSample(double _channelData, double _vcc) {
 	inputVector(1) = _vcc;
 
 	//Prepare the nonlinear solver
+	//pd = Kdinv*(G*xz + H*u);
 	nonLinSolverInput = (simAlteredStateSpaceK.inverse())*(simStateSpaceG*stateSpaceVectorMem + simStateSpaceH*inputVector); //define input to the Nonlinear equation --- MATLAB pd
 	
 	//set initial value of nonLinVoltageVector as the memorised vector
-	nonLinVoltageVectorPrev = nonLinVoltageVectorMem;	
+	nonLinVoltageVectorPrev = nonLinVoltageVectorMem;	//vd0 = vdz;
 
 	nrms = 1.; //sets the nrms high to begin with 
 	iteration = 0;
@@ -182,12 +183,11 @@ double Simulation::processSample(double _channelData, double _vcc) {
 
 		//vdnew = vd - STEP;
 		nonLinVoltageVectorNew = nonLinVoltageVector - newtonStep;              
-		//gnew = M*vdnew
-		nodalDKNonlinearGNew = simNonLinEquationMatrix * nonLinVoltageVectorNew;              
+             
 		//gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
-		nodalDKNonlinearGNew = nodalDKNonlinearGNew +                                                        //M*vdnew + 
-			(simSaturationCurrent* (addToEveryValue(matrixExp(nonLinVoltageVector / simThermalVoltage), -1)))//IS*(exp(vdnew/VT) - 1)
-			- nonLinSolverInput;                                                                             //-pd
+		nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                               //M*vdnew + 
+			(simSaturationCurrent* (addToEveryValue(matrixExp(nonLinVoltageVectorNew / simThermalVoltage), -1)))//IS*(exp(vdnew/VT) - 1)
+			- nonLinSolverInput;                                                                                //-pd
 		
 		//m = 0
 		subIterCounter = 0;       
@@ -201,15 +201,10 @@ double Simulation::processSample(double _channelData, double _vcc) {
 			//vdnew = vd - STP
 			nonLinVoltageVectorNew = nonLinVoltageVector - newtonStepTemp;
 
-			//std::cout << "OLD: " << newtonStep << std::endl << " NEW: " << newtonStepTemp << std::endl;
-
-			nodalDKNonlinearGNew = simNonLinEquationMatrix * nonLinVoltageVectorNew;              //gnew = M*vdnew
-
-			nodalDKNonlinearGNew = nodalDKNonlinearGNew + (simSaturationCurrent*
-				(addToEveryValue(matrixExp(nonLinVoltageVector / simThermalVoltage), -1)));       //M*vdnew + IS*(exp(vdnew/VT) - 1)
-
-			nodalDKNonlinearGNew = nodalDKNonlinearGNew - nonLinSolverInput;                      //gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
-																								  
+			//gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
+			nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                               //M*vdnew + 
+				(simSaturationCurrent* (addToEveryValue(matrixExp(nonLinVoltageVectorNew / simThermalVoltage), -1)))//IS*(exp(vdnew/VT) - 1)
+				- nonLinSolverInput;                                                                                //-pd																							  
 		}
 
 		nrms = newtonStepTemp.transpose()*newtonStepTemp;  //squared norm used to limit iterations

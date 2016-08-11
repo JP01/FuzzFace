@@ -16,7 +16,7 @@ void main() {
 	Eigen::VectorXd timeVector;
 	//Attributes of the input sin wave
 	double durationOfSin = 0.4;
-	double amplitude = 0.2;
+	double amplitude = 0.01;
 	double frequency = 100;
 
 	//Number of samples 
