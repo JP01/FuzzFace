@@ -38,8 +38,18 @@ public:
 
 	//Read matrix data from a file and return it as a vector of type double
 	std::vector<double> readMatrixData(std::string fileName);
+	
+	//Write matrix data to a file
+	void writeMatrixData(Eigen::MatrixXd inputMatrix, std::string fileName);
+
+	//Write vector data to file, includes sample number
+	void writeVectorData(Eigen::MatrixXd inputMatrix, std::string fileName);
 
 	//Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same
 	bool matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatrix);
+
+	//Helper Method to generate sin input
+	Eigen::VectorXd generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude);
+	
 };
 

@@ -47,14 +47,15 @@ class Circuit
 		//Acceptable arguements "psi", "phi", "nonLinEquationMatrix", "alteredStateSpaceK"
 		Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input); 
 
-		//Initial setup functions
-		void setup();
-		//Refresh All matrices, call when paramater change needs to be implemented
-		void refreshAll();
+
+		
 
 		//Refreshes the system matrix with new fuzz and vol values then returns the system matrix
 		SystemMatrix getSystemMatrix() { refreshSystemMatrix();  return systemMatrix; }
-
+	
+	protected: 
+		//Refresh All matrices, call when paramater change needs to be implemented
+		void refreshFullCircuit();
 
 
 	private: //access control
@@ -81,6 +82,9 @@ class Circuit
 		const double reverseGain = 2;
 		const double thermalVoltage = 25.8e-3;
 		const double saturationCurrent = 1e-14;
+
+		//Initial setup functions
+		void setupCircuit();
 
 		/*Circuit matrices*/
 		void populateCircuitMatrices();	//populate circuit matrices, performed at setup

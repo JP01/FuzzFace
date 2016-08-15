@@ -23,16 +23,21 @@ public:
 	//Default Destructor
 	~Simulation();
 
-	//Refresh and setup the statespace matrices used in the simulation
-	void setup();
+	//Refresh all the circuit values and setup the statespace matrices used in the simulation
+	void refreshAll();
 
 	//Sets the buffer size
 	void setBufferSize(int bufferSize);
 
+	//process the buffer of data 
+	Eigen::VectorXd processBuffer(Eigen::VectorXd inputBuffer);
+
+	//Buffer to store the output vector of the simulation to send to the audio channel
+	Eigen::VectorXd outputBuffer;
+
 	//Takes the current sample as an arguement along with vcc and processes it, returning the new data.
 	//channelData is used as the name to be implemented with JUCE API channelData variable name
 	double processSample(double channelData, double _vcc);
-
 
 	/*Testable Intermediate calculation values (UNUSED)*/
 	/*Return the intermediate calculation variable at the index "selection".
@@ -53,9 +58,11 @@ public:
 	14 - nonLinearCurrent
 	15 - newtonStep
 	16 - newtonStepTemp
-	17 - calcTemp        
+	17 - calcTemp    	
+	*/    
 	Eigen::MatrixXd getCalculationVariable(int selection);
-	*/
+
+
 private:
 	//Buffer size in samples, defaulted to...??
 	int bufferSize;
@@ -63,27 +70,27 @@ private:
 	//Gets the system to a steady state ready for processing
 	void getSteadyState();
 
+	//zero input used as signal for warmup phase / getSteadyState
+	const double zeroInput = 0;
+
 	/* Input */
 	//VCC voltage
-	double vcc = 9; //steady state voltage
-	double durfade = 0.1; //duration of the faded power up
-	int MM; //integer rounded value used during the powerup phase
+	double vcc = 9.0; //steady state voltage
+	const double durfade = 0.1; //duration of the faded power up
+	double MM; //integer rounded value used during the powerup phase
+	const double steadyStatePeriodFactor = 2; //Factor which controls the size of the window window used to reach steady state (where window size in samples = MM*steadyStateFactor)
+	
 	Eigen::VectorXd win; //hanning window
 	Eigen::VectorXd vccv; //power up voltage used in initial setup
 	Eigen::VectorXd powerUpTimeVector; //time vector used in the powerup phase
 
-	//Sin Input
-	Eigen::VectorXd dummyData;//Dummy data used in the powerup phase
-	const double sinFreq = 200;  //Frequency of the input sin signal
-	const double sinAmp = 0.2;   //Amp of input signal
-
-	const int maxIterations = 10;
-	const int maxSubIterations = 10;
+	const double maxIterations = 100;
+	const double maxSubIterations = 10;
 
 	//Specified tolerance in nonlinear voltage vd
 	const double tol = 1e-10;
 	const double tols = tol*tol;
-
+	
 
 	StateSpaceA simStateSpaceA;
 	StateSpaceB simStateSpaceB;

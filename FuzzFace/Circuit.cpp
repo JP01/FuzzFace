@@ -10,18 +10,18 @@ Circuit::Circuit() : Circuit(DEFAULT_SR) {};
 /*Constructor which takes sampleRate as an arguement and initialises the sampling period T to 1./sampleRate */
 Circuit::Circuit(double _sampleRate) :T(1./_sampleRate){
 
-		std::cout << "Circuit Created" << std::endl;
-		
 		//Set the sampleRate of the circuit to input _sampleRate
 		sampleRate = _sampleRate;
 
+		std::cout << "Circuit Created with SR: " << sampleRate << std::endl;
+
 		//Perform initial setup of the circuit
-		setup();
+		setupCircuit();
 
 }
 
 /* Initial setup of default circuit values and parmaters*/
-void Circuit::setup() {
+void Circuit::setupCircuit() {
 	/* Setup */
 	//Initialise controllable paramaters
 	setVol(defaultVol);
@@ -31,7 +31,7 @@ void Circuit::setup() {
 	//Initialise the incident matrices
 	initialiseIncidentMatrices();
 	//Initialise the system matrices
-	refreshAll();
+	refreshFullCircuit();
 }
 
 /* Initial setup of circuit matrices */
@@ -93,7 +93,7 @@ void Circuit::initialiseIncidentMatrices() {
 }
 
 /* Refresh all matrices in the system when fuzz or vol changes*/
-void Circuit::refreshAll() {
+void Circuit::refreshFullCircuit() {
 	refreshCircuitMatrices(); 
 	refreshSystemMatrix(); 
 	refreshNonLinStateSpace(); 

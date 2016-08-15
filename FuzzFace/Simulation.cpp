@@ -3,8 +3,8 @@
 //Default Constructor with default values for samplerate and vcc
 Simulation::Simulation() : Simulation(DEFAULT_SR, DEFAULT_VCC) {};
 
-//Constructor with Args
-Simulation::Simulation(double _sampleRate, double _vcc)
+//Constructor with Args, calls the superclass constructor with the same sampleRate
+Simulation::Simulation(double _sampleRate, double _vcc) : Circuit(_sampleRate)
 {
 	//set sampleRate to _sampleRate
 	sampleRate = _sampleRate;
@@ -13,20 +13,21 @@ Simulation::Simulation(double _sampleRate, double _vcc)
 	vcc = _vcc;
 
 	//Sets up the statespace matrices used in the simulation
-	setup();
+	refreshAll();
 
 	//Initialise the matrices used in simulation
 	initialiseSimulationParameters();
 
 	//Get the system to a steady State
 	getSteadyState();
+
 }
 
 
-void Simulation::setup() 
+void Simulation::refreshAll() 
 {
-	//Calls the Circuit method to refresh matrices
-	refreshAll();
+	//Calls the Circuit method to refresh Circuit Vals
+	refreshFullCircuit();
 
 	//Sets up the state space matrices
 	simStateSpaceA = getStateSpaceMatrix("A");
@@ -83,14 +84,12 @@ void Simulation::setBufferSize(int bufferSize) {
 	Simulation::bufferSize = bufferSize;
 }
 
+
 //Get the system to steady state ready for processing
 void Simulation::getSteadyState() {
 
-	//zero input used as signal for warmup phase
-	double zeroInput = 0;
-
 	//MM value is used to get to steady state
-	MM = durfade * sampleRate;
+	MM = ceil(durfade * sampleRate);
 
 	//TM = 1./MM	
 	//Declare the variable TM used in the time vector
@@ -112,8 +111,7 @@ void Simulation::getSteadyState() {
 		//set the value at index win(i) equal to the multiplier
 		win(i) = multiplier;
 	}
-
-
+	
 	//Population loop, populates the vcc powerUpTimeVector and dummyData
 	for (int i = 0; i < MM; i++) {
 		//Multiply vcc by the ramp up section to get ramp up voltage
@@ -132,15 +130,21 @@ void Simulation::getSteadyState() {
 	std::cout << "timeBefore = " << timeBefore << std::endl;
 
 	//process until steady state is reached
-	for (int i = 0; i < MM; i++) {
-		processSample(zeroInput, vccv(i));
+	for (int i = 0; i < MM*steadyStatePeriodFactor; i++) {
+		//Process the full MM window then pad the rest of the vccv values with vcc = 9;
+		if (i < MM) {
+			processSample(zeroInput, vccv(i));
+		}
+		else {
+			processSample(zeroInput, vcc);
+		}
 	}
 	
 	//Output the time taken to get steady state
 	time_t timeAfter = time(&timer);
 	std::cout << "timeAfter = " << timeAfter << std::endl;
-	std::cout << "Time taken to compute "<< MM <<" samples = " << timeAfter - timeBefore << " seconds" << std::endl;
-
+	std::cout << "Time taken to compute steady state: "<< MM*steadyStatePeriodFactor <<" samples = " << timeAfter - timeBefore << " seconds" << std::endl;
+	
 	std::cout << "SteadyState Reached, now processing" << std::endl;
 	}
 
@@ -162,99 +166,126 @@ double Simulation::processSample(double _channelData, double _vcc) {
 	subIterationTotal = 0;
 
 	nonLinVoltageVector = nonLinVoltageVectorPrev; //sets the nonlinVoltageVector as the memorised vector
-
+	
 	
 	while (nrms > tols && iteration < maxIterations) {
-		//TERM = IS*exp(vd/VT);
-		calcTemp = simSaturationCurrent * matrixExp(nonLinVoltageVector / simThermalVoltage); 
-		//f = TERM - IS;
-		nonLinTransistorFunction = addToEveryValue(calcTemp, -simSaturationCurrent); 
-		//fd = diag(TERM/VT);
-		nonLinTransistorFunctionAltered = (calcTemp / simThermalVoltage).asDiagonal();        
-		//g = M*vd + f - pd;
-		nodalDKNonlinearG = (simNonLinEquationMatrix * nonLinVoltageVector)  //M*vd
-						+ nonLinTransistorFunction                           //+ f
-						- nonLinSolverInput;                                 //- pd              
 		
-		//gd = M + fd;
-		nodalDKNonlinearGAltered = simNonLinEquationMatrix + nonLinTransistorFunctionAltered; 
-		//STEP = gd\g;
-		newtonStep = nodalDKNonlinearGAltered.partialPivLu().solve(nodalDKNonlinearG);  
+			//TERM = IS*exp(vd/VT);
+			calcTemp = simSaturationCurrent * (nonLinVoltageVector / simThermalVoltage).array().exp();
+			//f = TERM - IS;
+			nonLinTransistorFunction = calcTemp.array() - simSaturationCurrent;
+			//fd = diag(TERM/VT);
+			nonLinTransistorFunctionAltered = (calcTemp / simThermalVoltage).asDiagonal();
+			//g = M*vd + f - pd;
+			nodalDKNonlinearG = (simNonLinEquationMatrix * nonLinVoltageVector)  //M*vd
+				+ nonLinTransistorFunction                           //+ f
+				- nonLinSolverInput;                                 //- pd              
 
-		//vdnew = vd - STEP;
-		nonLinVoltageVectorNew = nonLinVoltageVector - newtonStep;              
-             
-		//gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
-		nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                               //M*vdnew + 
-			(simSaturationCurrent* (addToEveryValue(matrixExp(nonLinVoltageVectorNew / simThermalVoltage), -1)))//IS*(exp(vdnew/VT) - 1)
-			- nonLinSolverInput;                                                                                //-pd
-		
-		//m = 0
-		subIterCounter = 0;       
+			//gd = M + fd;
+			nodalDKNonlinearGAltered = simNonLinEquationMatrix + nonLinTransistorFunctionAltered;
+			//STEP = gd\g;
+			newtonStep = nodalDKNonlinearGAltered.inverse() * nodalDKNonlinearG;
 
-		while (((nodalDKNonlinearGNew.transpose()*nodalDKNonlinearGNew) > (nodalDKNonlinearG.transpose()*nodalDKNonlinearG)) && subIterCounter < maxSubIterations)
-		{
-			//m = m+1
-			subIterCounter++;
-			//STP = (2^(-m))*STEP;    % adjusted step 
-			newtonStepTemp = (2 ^ (-subIterCounter))*newtonStep;
-			//vdnew = vd - STP
-			nonLinVoltageVectorNew = nonLinVoltageVector - newtonStepTemp;
+			//vdnew = vd - STEP;
+			nonLinVoltageVectorNew = nonLinVoltageVector - newtonStep;
 
 			//gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
-			nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                               //M*vdnew + 
-				(simSaturationCurrent* (addToEveryValue(matrixExp(nonLinVoltageVectorNew / simThermalVoltage), -1)))//IS*(exp(vdnew/VT) - 1)
-				- nonLinSolverInput;                                                                                //-pd																							  
-		}
+			nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                            //M*vdnew + 
+				(simSaturationCurrent* ((nonLinVoltageVectorNew/simThermalVoltage).array().exp() - 1).matrix())    //IS*(exp(vdnew/VT) - 1)
+				- nonLinSolverInput;                                                                               //-pd
 
-		nrms = newtonStepTemp.transpose()*newtonStepTemp;  //squared norm used to limit iterations
-		nonLinVoltageVector = nonLinVoltageVectorNew;  //set the nonLinVoltageVector to the new value after calculation
-		subIterationTotal += subIterCounter;  //keep track of the subiterations
-		iteration++; //keep track of the iterations
+			//m = 0
+			subIterCounter = 0.0;
+
+			//STP = STEP;
+			newtonStepTemp = newtonStep;
+
+			while ((nodalDKNonlinearGNew.squaredNorm() > (nodalDKNonlinearG.squaredNorm())) && subIterCounter < maxSubIterations)
+			{
+				//m = m+1
+				subIterCounter++;
+				//STP = (2^(-m))*STEP;    % adjusted step 
+				newtonStepTemp.array() /= 2.; //half the step with each iteration	
+				//vdnew = vd - STP
+				nonLinVoltageVectorNew = nonLinVoltageVector - newtonStepTemp;
+
+				//gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;
+				nodalDKNonlinearGNew = (simNonLinEquationMatrix * nonLinVoltageVectorNew) +                             //M*vdnew + 
+					(simSaturationCurrent* ((nonLinVoltageVectorNew / simThermalVoltage).array().exp() - 1).matrix())   //IS*(exp(vdnew/VT) - 1)
+					- nonLinSolverInput;                                                                                //-pd																							  
+			}
+			//nrms = STP'*STP;
+			nrms = newtonStepTemp.squaredNorm();  //squared norm used to limit iterations
+			//vd = vdnew;
+			nonLinVoltageVector = nonLinVoltageVectorNew;  //set the nonLinVoltageVector to the new value after calculation
+			//subiter = subiter + m;
+			subIterationTotal += subIterCounter;  //keep track of the subiterations
+			//iter = iter + 1;
+			iteration++; //keep track of the iterations
+		
 	}
-	
+
 
 	//Update nonlinear currents, state and output
-	nonLinearCurrent = simPSI * (simSaturationCurrent*(addToEveryValue(matrixExp(nonLinVoltageVector/simThermalVoltage), -1)));   //  i = PSI*(IS*(exp(vd/VT) - 1));
-	stateSpaceVector = (simStateSpaceA * stateSpaceVectorMem) + (simStateSpaceB*inputVector) + (simStateSpaceC*nonLinearCurrent); //  x = A*xz + B*u + C*i;
-	output = ((simStateSpaceD*stateSpaceVectorMem) + (simStateSpaceE*inputVector) + (simStateSpaceF*nonLinearCurrent))(0);           //  y = D*xz + E*u + F*i 
+	nonLinearCurrent = simPSI * (simSaturationCurrent*((nonLinVoltageVector / simThermalVoltage).array().exp() - 1).matrix());     //  i = PSI*(IS*(exp(vd/VT) - 1));
+	stateSpaceVector = (simStateSpaceA * stateSpaceVectorMem) + (simStateSpaceB*inputVector) + (simStateSpaceC*nonLinearCurrent);  //  x = A*xz + B*u + C*i;
+	output = ((simStateSpaceD*stateSpaceVectorMem) + (simStateSpaceE*inputVector) + (simStateSpaceF*nonLinearCurrent))(0);         //  y = D*xz + E*u + F*i 
 	//when declaring output  = RHS, the RHS is technically an Eigen Vector of size 1x1, so you must use the (0) to select the value at index 0
 
 	stateSpaceVectorMem = stateSpaceVector;  //xz = x;   Memorise the stateSpaceVector
 	nonLinVoltageVectorMem = nonLinVoltageVector; //vdz = vd;   Memorise the nonLinVoltageVector
 
-
 	return output; //returns the processed sample
 }
 
-// Add valueToAdd to every value in the matrix input
-Eigen::MatrixXd Simulation::addToEveryValue(Eigen::MatrixXd input, double valueToAdd) {
-	//For each value in the matrix, add valueToAdd
-	for (int row = 0; row < input.rows(); row++) {
-		for (int col = 0; col < input.cols(); col++) {
-			double temp = 0;
-			temp = input(row, col);
-			temp = temp + valueToAdd;
-			input(row, col) = temp;
-		}
+//Process the incoming buffer and return a Vector of the output as another buffer
+Eigen::VectorXd Simulation::processBuffer(Eigen::VectorXd inputBuffer) {
+	//Refresh all matrices to ensure current fuzz / vol settings are used in calculation
+	refreshAll();
+
+	//resize the output buffer to the same size as the input buffer
+	outputBuffer.resizeLike(inputBuffer);	
+
+	//loop through every sample in the buffer, running the processSample() method on each sample and assigning it to the corresponding outputBuffer at index "i"
+	for (int i = 0; i < inputBuffer.size(); i++) {
+
+		//Populate the output buffer with result of processing the current sample at index "i"
+		outputBuffer(i) = processSample(inputBuffer(i), vcc);
 	}
-	return input;
+
+	//returns the outputBuffer vector
+	return outputBuffer;
 }
 
-//Return the exponential of each value in matrix
-Eigen::MatrixXd Simulation::matrixExp(Eigen::MatrixXd input) {
-	//For each value in the matrix, change it to exp(value)
-	for (int row = 0; row < input.rows(); row++) {
-		for (int col = 0; col < input.cols(); col++) {
-			double temp = 0;
-			temp = input(row, col);
-			temp = exp(temp);
-			input(row, col) = temp;
-		}
-	}
-	return input;
-}
 
+
+
+//getCalculation variable related to input selection
+Eigen::MatrixXd Simulation::getCalculationVariable(int selection) {
+	switch (selection) {
+	case 1: return stateSpaceVector; break;
+	case 2: return stateSpaceVectorMem; break;
+	case 3: return nonLinVoltageVector; break;
+	case 4: return nonLinVoltageVectorMem; break;
+	case 5: return nonLinVoltageVectorPrev; break;
+	case 6: return nonLinVoltageVectorNew; break;
+	case 7: return inputVector; break;
+	case 8: return nonLinSolverInput; break;
+	case 9: return nonLinTransistorFunction; break;
+	case 10: return nonLinTransistorFunctionAltered; break;
+	case 11: return nodalDKNonlinearG; break;
+	case 12: return nodalDKNonlinearGNew; break;
+	case 13: return nodalDKNonlinearGAltered; break;
+	case 14: return nonLinearCurrent; break;
+	case 15: return newtonStep; break;
+	case 16: return newtonStepTemp; break;
+	case 17: return calcTemp; break;
+	default: 
+		std::cout << "Error with input: " << selection << ", please choose a valid selection" << std::endl;
+		return stateSpaceVector;
+	}
+
+}
 
 //Default Destructor
 Simulation::~Simulation()
