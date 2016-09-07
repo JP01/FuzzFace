@@ -59,5 +59,8 @@
     <ClInclude Include="MyMatrixTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjectSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

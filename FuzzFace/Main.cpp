@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Circuit.h"
 #include "Simulation.h"
 #include <fstream>
 
@@ -41,14 +40,14 @@ void writeVectorData(Eigen::MatrixXd inputMatrix, std::string fileName) {
 }
 
 //Helper Method to generate sin input
-Eigen::VectorXd generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude) {
+Eigen::VectorXf generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude) {
 	//Create a vector to store sin input and time vector
-	Eigen::VectorXd sinWaveVector;
+	Eigen::VectorXf sinWaveVector;
 	Eigen::VectorXd timeVector;
 	//Attributes of the input sin wave
 
 	//Number of samples rounded up to the nearest whole integer
-	double numberOfSamples = ceil(_sampleRate * _duration);
+	int numberOfSamples = ceil(_sampleRate * _duration);
 
 	//Resize the input vectors
 	sinWaveVector.resize(numberOfSamples);
@@ -65,18 +64,18 @@ Eigen::VectorXd generateSin(double _sampleRate, double _frequency, double _durat
 
 void main() {
 	std::cout << "Main program" << std::endl;
-	double sampleRate = 96000;
+	double sampleRate = 44100;
 	double frequency = 100;
-	double duration = 1;
+	double duration = 0.1;
 	double amplitude = 0.1;
 	double vcc = 9;
 
-	Eigen::VectorXd sinInput;
-	Eigen::VectorXd systemOutput;
+	Eigen::VectorXf sinInput;
+	Eigen::VectorXf systemOutput;
+	
+	Simulation* s = new Simulation(sampleRate, vcc);
 
-	//Instance of simulation
-	Simulation s(sampleRate, vcc);
-
+	
 	//generate the sinwave input
 	sinInput = generateSin(sampleRate, frequency, duration, amplitude);
 
@@ -88,18 +87,32 @@ void main() {
 	time_t timeBefore = time(&timer);
 	std::cout << "timeBefore processBuffer = " << timeBefore << std::endl;
 
-	systemOutput = s.processBuffer(sinInput);
+	float* mypointer;
+	float value;
+	for (int i = 0; i < sinInput.size(); i++) {
+		mypointer = &sinInput[i];
+
+
+		s->processSample(mypointer, vcc);
+
+
+		systemOutput[i] = *mypointer;
+		std::cout << systemOutput[i] <<std::endl;
+
+	}
 
 	//Output the time taken to process the buffer
 	time_t timeAfter = time(&timer);
 	std::cout << "timeAfter processBuffer = " << timeAfter << std::endl;
 	std::cout << "Time taken to compute the buffer: " << timeAfter - timeBefore << " seconds" << std::endl;
 
-	writeMatrixData(sinInput, "cppSinInput.txt");
-	writeVectorData(sinInput, "cppSinInputWithSampleNum.txt");
-	writeVectorData(systemOutput, "outputWithSampleNumber.txt");
-	writeMatrixData(systemOutput, "output.txt");
+	//writeMatrixData(sinInput, "cppSinInput.txt");
+	//writeVectorData(sinInput, "cppSinInputWithSampleNum.txt");
+	//writeVectorData(systemOutput, "outputWithSampleNumber.txt");
+	//writeMatrixData(systemOutput, "output.txt");
 
 	//compare with matlab result	
+
+	
 } 
 

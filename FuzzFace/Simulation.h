@@ -1,15 +1,10 @@
 #pragma once
-#include "Eigen/Dense"
 #include "MyMatrixTypes.h"
 #include "Circuit.h"
 #include <math.h>
 #include <vector>
-#include<ctime>
+#include <ctime>
 
-/* PI */
-#define PI 3.141592653589793 //23846 - extra digits of precision
-/* default vcc = 9*/
-#define DEFAULT_VCC 9.
 
 class Simulation : public Circuit
 {
@@ -23,87 +18,50 @@ public:
 	//Default Destructor
 	~Simulation();
 
-	//Refresh all the circuit values and setup the statespace matrices used in the simulation
-	void refreshAll();
-
-	//Sets the buffer size
-	void setBufferSize(int bufferSize);
-
-	//process the buffer of data 
-	Eigen::VectorXd processBuffer(Eigen::VectorXd inputBuffer);
+	//process the buffer of data where vcc is set to the system VCC (default 9v)
+	//Eigen::VectorXd processBuffer(Eigen::VectorXd inputBuffer);
 
 	//Buffer to store the output vector of the simulation to send to the audio channel
-	Eigen::VectorXd outputBuffer;
+	//Eigen::VectorXd outputBuffer;
+
+	//Set the sampleRate
+	void setSimSampleRate(double _sampleRate);
 
 	//Takes the current sample as an arguement along with vcc and processes it, returning the new data.
 	//channelData is used as the name to be implemented with JUCE API channelData variable name
-	double processSample(double channelData, double _vcc);
+	void processSample(float* channelData, double _vcc);
 
-	/*Testable Intermediate calculation values (UNUSED)*/
-	/*Return the intermediate calculation variable at the index "selection".
-	Where Selection: 
-	1 - stateSpaceVector         
-	2-  stateSpaceVectorMem
-	3 - nonLinVoltageVector      
-	4 - nonLinVoltageVectorMem
-	5 - nonLinVoltageVectorPrev   
-	6 - nonLinVoltageVectorNew
-	7 - inputVector
-	8 - nonLinSolverInput
-	9 - nonLinTransistorFunction
-	10 - nonLinTransistorFunctionAltered
-	11 - nodalDKNonlinearG
-	12 - nodalDKNonlinearGNew
-	13 - nodalDKNonlinearGAltered
-	14 - nonLinearCurrent
-	15 - newtonStep
-	16 - newtonStepTemp
-	17 - calcTemp    	
-	*/    
-	Eigen::MatrixXd getCalculationVariable(int selection);
 
+	//Method to set the fuzz and vol params to the arguement vals and then refresh the system.
+	void setParams(double _fuzzVal, double _volVal);
+
+	//Gets the system to a steady state ready for processing
+	void getSteadyState();
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW //Aligns all the Eigen Members in the class to avoid memory allocation errors... see https://eigen.tuxfamily.org/dox/group__TopicUnalignedArrayAssert.html & https://eigen.tuxfamily.org/dox/group__TopicStructHavingEigenMembers.html
 
 private:
 	//Buffer size in samples, defaulted to...??
 	int bufferSize;
 
-	//Gets the system to a steady state ready for processing
-	void getSteadyState();
-
-	//zero input used as signal for warmup phase / getSteadyState
-	const double zeroInput = 0;
-
 	/* Input */
 	//VCC voltage
-	double vcc = 9.0; //steady state voltage
-	const double durfade = 0.1; //duration of the faded power up
-	double MM; //integer rounded value used during the powerup phase
-	const double steadyStatePeriodFactor = 2; //Factor which controls the size of the window window used to reach steady state (where window size in samples = MM*steadyStateFactor)
-	
+	double vcc = DEFAULT_VCC; //steady state voltage
+	const double durfade = DURFADE; //duration of the faded power up
+	int hanWin; //length in samples of the hanning window for voltage ramping, used in the get steady state phase
+	const double steadyStatePeriodFactor = STEADY_STATE_FACTOR; //Factor which controls the size of the window window used to reach steady state (where window size in samples = hanWin*steadyStateFactor)
+
 	Eigen::VectorXd win; //hanning window
 	Eigen::VectorXd vccv; //power up voltage used in initial setup
-	Eigen::VectorXd powerUpTimeVector; //time vector used in the powerup phase
 
-	const double maxIterations = 100;
-	const double maxSubIterations = 10;
+	const double maxIterations = MAX_ITERATIONS;
+	const double maxSubIterations = MAX_SUB_ITERATIONS;
 
 	//Specified tolerance in nonlinear voltage vd
-	const double tol = 1e-10;
+	const double tol = TOL;
+	//tol^2, used for end conditions of the NR solver
 	const double tols = tol*tol;
-	
 
-	StateSpaceA simStateSpaceA;
-	StateSpaceB simStateSpaceB;
-	StateSpaceC simStateSpaceC;
-	StateSpaceD simStateSpaceD;
-	StateSpaceE simStateSpaceE;
-	StateSpaceF simStateSpaceF;
-	StateSpaceG simStateSpaceG;
-	StateSpaceH simStateSpaceH;
-	NonlinearFunctionMatrix simPSI, simAlteredStateSpaceK, simNonLinEquationMatrix;
-
-	double simSaturationCurrent, simThermalVoltage;
-	
 
 	/*Simulation Preparations*/
 
@@ -115,7 +73,7 @@ private:
 
 	Eigen::Vector3d stateSpaceVector; //(MATLAB - x)
 	Eigen::Vector3d stateSpaceVectorMem; //memorised state vector, 3x1 vector (MATLAB - xz)
-	
+
 	Eigen::Vector4d nonLinVoltageVector; //discrete nonlinear voltage vector. 4x1 vector (MATLAB - vd)
 	Eigen::Vector4d nonLinVoltageVectorMem; //memorised nonlinear voltage vector, 4x1 vector (MATLAB - vdz)
 	Eigen::Vector4d nonLinVoltageVectorPrev; //previous value --- MATLAB = vd0
@@ -131,25 +89,17 @@ private:
 	Eigen::Vector4d nodalDKNonlinearGtemp; //Matlab (used as temp value for gnew = M*vdnew + IS*(exp(vdnew/VT) - 1) - pd;)
 	Eigen::Matrix4d nodalDKNonlinearGAltered; //MATLAB - gd
 	Eigen::Vector4d nonLinearCurrent; //the nonlinear currents through the transistor (i.e. i = f(v)) .... f and i basically have the same purpose so there is redundancy. (MATLAB - i)
-	
+
 	Eigen::Vector4d newtonStep; //the newston Step, used in simulation, MATLAB - STEP
 	Eigen::Vector4d newtonStepTemp; //temp term used in simulation, adjusted step which works to keep max subiterations within the limit MATLAB - STP
 
 	Eigen::Vector4d calcTemp; //temporary term used in simulation calculation (MATLAB - TERM)
 
+							  //initialise and zero all the simulation paramaters and vectors
+	void initialiseSimulationParameters();
+
 	//Eigen::Vector2d outputVector;
 	double output; //output of the model (MATLAB - y)
 
-	//Dynamically Sized Vectors, (unknown size at compile time)
-	Eigen::RowVectorXd iterationCollection;  //iteration collection vector, collects the number of iterations to solve the current sample
-	Eigen::RowVectorXd subIterationCollection; //sub-iteration collection vector, collects the number of iterations to solve the current sample
-	Eigen::MatrixXd currentCollection; //nonlinear current collection array
-	Eigen::MatrixXd auxSignalCollection; //auxiliary signal collection vector
-
-	void initialiseSimulationParameters();
-
-	//Helper Functions used in the simulation calculations
-	Eigen::MatrixXd matrixExp(Eigen::MatrixXd input);  //Return the exponential of each value in matrix
-	Eigen::MatrixXd Simulation::addToEveryValue(Eigen::MatrixXd input, double valueToAdd); // Add valueToAdd to every value in the matrix input
 
 };

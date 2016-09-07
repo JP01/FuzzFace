@@ -20,22 +20,24 @@ double volInvalidUpper = 1;
 double defaultFuzz = 0.6;
 double defaultVol = 0.4;
 
-/*Test the getters and setters for the Circuit class*/
+double ctrlMin = CTRL_MIN + CTRL_INCREMENT;
+double ctrlMax = CTRL_MAX - CTRL_INCREMENT;
 
+/*Test the getters and setters for the Circuit class*/
 BOOST_AUTO_TEST_CASE(testFuzzInvalidLower) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set fuzz
-	c.setFuzz(fuzzInvalidLower);
+	c.setParams(fuzzInvalidLower, defaultVol);
 	//check get matches default
-	BOOST_CHECK_EQUAL(c.getFuzz() , defaultFuzz);
+	BOOST_CHECK_EQUAL(c.getFuzz() , ctrlMin);
 }
 
 BOOST_AUTO_TEST_CASE(testFuzzValidLower) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set fuzz
-	c.setFuzz(fuzzValidLower);
+	c.setParams(fuzzValidLower,defaultVol);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getFuzz(), fuzzValidLower);
 }
@@ -44,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testFuzzValid) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set fuzz
-	c.setFuzz(fuzzValid);
+	c.setParams(fuzzValid, defaultVol);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getFuzz(), fuzzValid);
 }
@@ -53,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testFuzzValidUpper) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set fuzz
-	c.setFuzz(fuzzValidUpper);
+	c.setParams(fuzzValidUpper, defaultVol);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getFuzz(), fuzzValidUpper);
 }
@@ -62,25 +64,25 @@ BOOST_AUTO_TEST_CASE(testFuzzInvalidUpper) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set fuzz
-	c.setFuzz(fuzzInvalidUpper);
+	c.setParams(fuzzInvalidUpper, defaultVol);
 	//check get matches default
-	BOOST_CHECK_EQUAL(c.getFuzz(), defaultFuzz);
+	BOOST_CHECK_EQUAL(c.getFuzz(), ctrlMax);
 }
 
 BOOST_AUTO_TEST_CASE(testVolInvalidLower) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set Vol
-	c.setVol(volInvalidLower);
+	c.setParams(defaultFuzz, volInvalidLower);
 	//check get matches default
-	BOOST_CHECK_EQUAL(c.getVol(), defaultVol);
+	BOOST_CHECK_EQUAL(c.getVol(), ctrlMin);
 }
 
 BOOST_AUTO_TEST_CASE(testVolValidLower) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set Vol
-	c.setVol(volValidLower);
+	c.setParams(defaultFuzz, volValidLower);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getVol(), volValidLower);
 }
@@ -89,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testVolValid) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set Vol
-	c.setVol(volValid);
+	c.setParams(defaultFuzz, volValid);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getVol(), volValid);
 }
@@ -98,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testVolValidUpper) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set Vol
-	c.setVol(volValidUpper);
+	c.setParams(defaultFuzz, volValidUpper);
 	//check get matches default
 	BOOST_CHECK_EQUAL(c.getVol(), volValidUpper);
 }
@@ -107,8 +109,10 @@ BOOST_AUTO_TEST_CASE(testVolInvalidUpper) {
 	//Create an instance of Circuit c
 	Circuit c;
 	//set Vol
-	c.setVol(volInvalidUpper);
+	c.setParams(defaultFuzz, volInvalidUpper);
 	//check get matches default
-	BOOST_CHECK_EQUAL(c.getVol(), defaultVol);
+	BOOST_CHECK_EQUAL(c.getVol(), ctrlMax);
 }
+
+
 

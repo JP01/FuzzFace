@@ -3,7 +3,6 @@
 //Default Constructor
 TestHelper::TestHelper()
 {
-	acceptableError = 1e-5;
 }
 
 //Default Destructor
@@ -40,13 +39,15 @@ std::vector<double> TestHelper::readMatrixData(std::string fileName)
 }
 
 //Write matrix data to a file
-void TestHelper::writeMatrixData(Eigen::MatrixXd inputMatrix, std::string fileName) {
+void TestHelper::writeMatrixData(Eigen::MatrixXf inputMatrix, std::string fileName) {
 	std::ofstream myfile(fileName);
 
 	//checks file open
 	if (myfile.is_open())
 	{
+		//write the matrix to the file
 		myfile <<  inputMatrix;
+		//close the resource
 		myfile.close();
 	}
 	//error message if file unable to open
@@ -56,7 +57,7 @@ void TestHelper::writeMatrixData(Eigen::MatrixXd inputMatrix, std::string fileNa
 }
 
 //Write matrix data to a file includes sample number
-void TestHelper::writeVectorData(Eigen::MatrixXd inputMatrix, std::string fileName) {
+void TestHelper::writeVectorData(Eigen::MatrixXf inputMatrix, std::string fileName) {
 	std::ofstream myfile(fileName);
 
 	//checks file open
@@ -64,9 +65,11 @@ void TestHelper::writeVectorData(Eigen::MatrixXd inputMatrix, std::string fileNa
 	{
 		//for each element in input vector, write the sample number and output the value
 		for (int i = 0; i < inputMatrix.size(); i++)
-		{
+		{	
+			//Write the data at index 1 to the file with sample number i displayed
 			myfile << "Sample " << i + 1 << ": " << inputMatrix(i) << std::endl;
 		}
+		//close the resource
 		myfile.close();
 
 	}
@@ -76,17 +79,17 @@ void TestHelper::writeVectorData(Eigen::MatrixXd inputMatrix, std::string fileNa
 	}
 }
 
-
-
-//Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same
-bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatrix) 
+//Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same, starting at sample index startingIndex (USED FOR TESTING THE 
+//SIMULATION.CPP AS THE FIRST ~9000 SAMPLES MAY BE INNACURATE)
+bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatrix, int startingIndex) 
 {
-	//Initialise the total rows for looping 
+	//Initialise the total rows and cols for looping 
 	int totalRows = inputMatrix.rows();
 	int totalCols = inputMatrix.cols();
 	
 	//create a vector to store the matlab generated matrix
 	std::vector<double> matlabResults;
+
 	//put the matlab results into the vector
 	matlabResults = readMatrixData(matlabData);
 
@@ -95,6 +98,50 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 	bool testPass = true; //Boolean flag used to determine the outcome of the testcase
 
 	//Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
+	for (int row = 0; row < totalRows; row++)
+	{
+		for (int col = 0; col < totalCols; col++) {
+				
+			if (resultIndex > startingIndex) {
+				/*Check each value for any differences, if there is a difference print an error message */
+				double difference = 0;
+				difference = matlabResults[resultIndex] - inputMatrix(row, col);
+
+				//If the difference is greater than acceptableError then output error and fail the test 
+				// "-difference" accounts for the difference being a negative number
+				if (difference > acceptableError || -difference > acceptableError) {
+					//Increase precision, used for error checking
+					std::cout.precision(32);
+					//if false, print error and erronious data
+					std::cout << "\nAn error occured at sample: " << resultIndex << ".\nMatlab Result: \t" << matlabResults[resultIndex] << "\nEigen Result: \t" << inputMatrix(row, col) << "\n The difference is : " << difference << std::endl;
+					//set the testPass to false, letting Boost know the testcase has failed
+					testPass = false;
+				}
+			}
+			resultIndex++;  //increment the resultIndex to move to next value in the matlabResults vector
+		}
+	}
+	return testPass;
+}
+
+//Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same
+bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatrix)
+{
+	//Initialise the total rows and cols for looping 
+	int totalRows = inputMatrix.rows();
+	int totalCols = inputMatrix.cols();
+
+	//create a vector to store the matlab generated matrix
+	std::vector<double> matlabResults;
+
+	//put the matlab results into the vector
+	matlabResults = readMatrixData(matlabData);
+
+	/* Test case processing */
+	int resultIndex = 0; //the index from the vector matlabResults
+	bool testPass = true; //Boolean flag used to determine the outcome of the testcase
+
+						  //Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
 	for (int row = 0; row < totalRows; row++)
 	{
 		for (int col = 0; col < totalCols; col++) {
@@ -121,9 +168,9 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 }
 
 //Helper Method to generate sin input
-Eigen::VectorXd TestHelper::generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude) {
+Eigen::VectorXf TestHelper::generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude) {
 	//Create a vector to store sin input and time vector
-	Eigen::VectorXd sinWaveVector;
+	Eigen::VectorXf sinWaveVector;
 	Eigen::VectorXd timeVector;
 	//Attributes of the input sin wave
 
