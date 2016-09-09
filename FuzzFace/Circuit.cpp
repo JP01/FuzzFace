@@ -31,6 +31,8 @@ void Circuit::setupCircuit() {
 	initialiseIncidentMatrices();
 	//Populate the constant system matrix
 	populateConstantSystemMatrix();
+	//Populate Constant state space terms
+	populateConstantStateSpaceTerms();
 	//Initialise the system matrices
 	refreshFullCircuit();
 }
@@ -188,6 +190,8 @@ void Circuit::populateConstantStateSpaceTerms() {
 	//K0 = [N_N zeros(nn,nu)]*(S0\[N_N zeros(nn,nu)].');
 	stateSpaceK0 = padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
 
+
+	std::cout << stateSpaceA0 << std::endl;
 }
 
 /* Function used to refrseh the final state space terms, combines the variable elements with the constant terms, called by refresh()*/
