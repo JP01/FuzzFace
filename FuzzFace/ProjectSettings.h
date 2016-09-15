@@ -54,11 +54,11 @@ namespace constants {
 	const int TEXT_BOX_HEIGHT = 16;
 
 	//Defaults for the Simulation cpp
-	const double DEFAULT_VCC = 8.1;  // default value for the voltage power supply, 90% of 9v = 8.1v for more realism
+	const double DEFAULT_VCC = 9;  // default value for the voltage power supply, 90% of 9v = 8.1v for more realism
 	const float ZERO_INPUT = 0.;  // zero input used for getting the system to steady state
 	const double DURFADE = 0.1;   //duration of the faded power supply used for steady state
 	const double STEADY_STATE_FACTOR = 4.5;  //Factor which controls the size of the window window used to reach steady state (where window size in samples = hanWin*steadyStateFactor)
-	const int MAX_ITERATIONS = 100;  //Maximum number of iterations for the newton raphson solver
+	const int MAX_ITERATIONS = 90;  //Maximum number of iterations for the newton raphson solver
 	const int MAX_SUB_ITERATIONS = 10;  //maximum number of subiterations for the damped newton raphson solver
 	const double TOL = 1e-10;  //error tolerance of the system
 

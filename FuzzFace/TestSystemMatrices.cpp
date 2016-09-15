@@ -1,6 +1,6 @@
-//#define BOOST_TEST_MAIN
-#include "TestHelper.h"
+#define BOOST_TEST_MAIN
 
+#include "TestHelper.h"
 
 /*
 Test Data 
@@ -19,20 +19,21 @@ double volDefault = 0.4;
 double volLow = 0.01;
 double volHigh = 0.99;
 
+
 //Different Sample rates with default Fuzz and Vol
-std::string matlabSettingsDefault_SR441 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_60_V_40_SR_44100.txt";
-std::string matlabSettingsDefault_SR48 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_60_V_40_SR_48000.txt";
-std::string matlabSettingsDefault_SR96 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_60_V_40_SR_96000.txt";
+std::string matlabSettingsDefault_SR441 = th.folder + "systemMatrixFromMatlab_F_60_V_40_SR_44100.txt";
+std::string matlabSettingsDefault_SR48 = th.folder + "systemMatrixFromMatlab_F_60_V_40_SR_48000.txt";
+std::string matlabSettingsDefault_SR96 = th.folder + "systemMatrixFromMatlab_F_60_V_40_SR_96000.txt";
 
 //Different Sample-rates with Low fuzz and vol
-std::string matlabSettingsLow_SR441 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_01_V_01_SR_44100.txt";
-std::string matlabSettingsLow_SR48 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_01_V_01_SR_48000.txt";
-std::string matlabSettingsLow_SR96 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_01_V_01_SR_96000.txt";
+std::string matlabSettingsLow_SR441 = th.folder + "systemMatrixFromMatlab_F_01_V_01_SR_44100.txt";
+std::string matlabSettingsLow_SR48 = th.folder + "systemMatrixFromMatlab_F_01_V_01_SR_48000.txt";
+std::string matlabSettingsLow_SR96 = th.folder + "systemMatrixFromMatlab_F_01_V_01_SR_96000.txt";
 
 //Different Sample-rates with High fuzz and vol
-std::string matlabSettingsHigh_SR441 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_99_V_99_SR_44100.txt";
-std::string matlabSettingsHigh_SR48 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_99_V_99_SR_48000.txt";
-std::string matlabSettingsHigh_SR96 = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/systemMatrixFromMatlab_F_99_V_99_SR_96000.txt";
+std::string matlabSettingsHigh_SR441 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_44100.txt";
+std::string matlabSettingsHigh_SR48 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_48000.txt";
+std::string matlabSettingsHigh_SR96 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_96000.txt";
 
 //Create an instance of TestHelper
 TestHelper th;
@@ -45,12 +46,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixDefault_SR441) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR441);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzDefault);
-	c.setVol(volDefault);
+	c.setParams(fuzzDefault, volDefault);
 	
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsDefault_SR441, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsDefault_SR441, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -63,12 +63,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixDefault_SR48) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR48);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzDefault);
-	c.setVol(volDefault);
+	c.setParams(fuzzDefault, volDefault);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsDefault_SR48, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsDefault_SR48, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -81,12 +80,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixDefault_SR96) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR96);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzDefault);
-	c.setVol(volDefault);
+	c.setParams(fuzzDefault, volDefault);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsDefault_SR96, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsDefault_SR96, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -100,12 +98,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixLow_SR441) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR441);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzLow);
-	c.setVol(volLow);
+	c.setParams(fuzzLow, volLow);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsLow_SR441, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsLow_SR441, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -118,12 +115,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixLow_SR48) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR48);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzLow);
-	c.setVol(volLow);
+	c.setParams(fuzzLow, volLow);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsLow_SR48, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsLow_SR48, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -136,12 +132,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixLow_SR96) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR96);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzLow);
-	c.setVol(volLow);
+	c.setParams(fuzzLow, volLow);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsLow_SR96, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsLow_SR96, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -155,12 +150,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixHigh_SR441) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR441);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzHigh);
-	c.setVol(volHigh);
+	c.setParams(fuzzHigh, volHigh);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsHigh_SR441, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsHigh_SR441, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -173,12 +167,11 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixHigh_SR48) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR48);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzHigh);
-	c.setVol(volHigh);
+	c.setParams(fuzzHigh, volHigh);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsHigh_SR48, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsHigh_SR48, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
 
@@ -192,15 +185,13 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixHigh_SR96) {
 	//Create an instance of Circuit with default Samplerate
 	Circuit c(SR96);
 	//Set Fuzz and Vol settings
-	c.setFuzz(fuzzHigh);
-	c.setVol(volHigh);
+	c.setParams(fuzzHigh, volHigh);
 
 	//Create the testPass flag used to store result of matrixChecker
 	bool testPass;
-	testPass = th.matrixChecker(matlabSettingsHigh_SR96, c.getSystemMatrix());
+	testPass = th.matrixChecker(matlabSettingsHigh_SR96, c.getFullSystemMatrix());
 	//If testPass is true, then pass the test case. If testPass has been set to false, then fail the testcase
 	BOOST_CHECK_EQUAL(testPass, true);
-
 
 }
 

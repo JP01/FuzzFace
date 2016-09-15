@@ -39,7 +39,7 @@ public: //access control
 	Eigen::MatrixXd getNonlinearFunctionMatrix(std::string input);
 
 	//Refreshes the system matrix with new fuzz and vol values then returns the system matrix (used for testing)
-	SystemMatrix getSystemMatrix() { populateConstantSystemMatrix();  return systemMatrix; }
+	SystemMatrix getFullSystemMatrix() { populateFullSystemMatrix();  return systemMatrixFULL; }
 
 	//Method to set the fuzz and vol params to the arguement vals.
 	void setParams(double _fuzzVal, double _volVal);
@@ -109,7 +109,7 @@ private: //access control
 	//Resistors Values
 	const double r1 = 33e3;
 	const double r2 = 8.2e3;
-	const double r3 = 330;
+	const double r3 = 470;
 	const double r4 = 2 * volPotRes;
 	const double r5 = 2 * volPotRes;
 	const double r6 = 100e3;
@@ -157,10 +157,13 @@ private: //access control
     //Setup functions for the system matrix
 	IntermediateSystemMatrix systemRes;  //Resistor matrix used in calculation of system matrix
 	IntermediateSystemMatrix systemCap;  //Capacitor matrix used in calculation of system matrix
+	IntermediateSystemMatrix systemPot;  //Potentiometer matrix used in calculation of FULL system matrix
 
-	SystemMatrix systemMatrix;  //Create a 12x12 system matrix
+
+	SystemMatrix systemMatrix, systemMatrixFULL;  //Create a 12x12 system matrix
 
 	void populateConstantSystemMatrix();  //function to setup and refrseh the system matrix
+	void populateFullSystemMatrix(); //populate the full system matrix
 
 	//Setup functions for the state space terms
 	PaddedCap padC;  //padded capacitor matrix 

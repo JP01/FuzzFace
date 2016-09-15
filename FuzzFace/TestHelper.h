@@ -1,5 +1,6 @@
-//Helper Class used in testing, contains methods for matrix reading and checking
 #pragma once
+//Helper Class used in testing, contains methods for matrix reading and checking
+
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 #include "Circuit.h"
@@ -37,6 +38,9 @@ public:
 	~TestHelper();
 
 	const double acceptableError = ERROR;
+	//Set the path to the folder where the matlab results are stored
+	std::string folder = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/";
+
 
 	//Read matrix data from a file and return it as a vector of type double
 	std::vector<double> readMatrixData(std::string fileName);
@@ -51,13 +55,15 @@ public:
 	//SIMULATION.CPP AS THE FIRST ~9000 SAMPLES MAY BE INNACURATE)
 	bool matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatrix, int startingIndex);
 
-	//Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same (USED FOR MOST TESTS)
-	bool matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatrix);
-
-
+	//Takes a data set produced from matlab and a matrix of floats and compares them, returns true if they are the same (USED FOR MOST TESTS)
+	bool matrixCheckerFloat(std::string matlabData, Eigen::MatrixXf inputMatrix);
+	//matrix checker for doubles
+	bool matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatrix);
 
 	//Helper Method to generate sin input
 	Eigen::VectorXf generateSin(double _sampleRate, double _frequency, double _duration, double _amplitude);
 	
+
+
 };
 

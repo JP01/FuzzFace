@@ -107,7 +107,7 @@ void Circuit::refreshFullCircuit() {
 
 /*Function to populate the circuit matrices*/
 void Circuit::refreshPotentiometerMatrices() {
-	//Update the resistor values
+	//Update the potentiometer values
 	volPotVar1 = (2 * (1 - vol)*volPotRes) / (2 - (1 - vol));
 	volPotVar2 = (2 * vol*volPotRes) / (2 - vol);
 	fuzzPotVar1 = (2 * (1 - fuzz)*fuzzPotRes) / (2 - (1 - fuzz));
@@ -133,6 +133,13 @@ void Circuit::populateConstantSystemMatrix() {
 	systemMatrix.block(0, numNodes, numNodes, numInputs) = incidentVoltage.transpose();  //sets the 10x2 matrix starting at (0,10) equal to the transpose of incidentVoltage matrix
 	systemMatrix.block(numNodes, 0, numInputs, numNodes) = incidentVoltage;  //sets the 2x10 matrix starting at (10,0) equal to the incidentVoltage matrix
 	systemMatrix.block(numNodes, numNodes, numInputs, numInputs).setZero();  //sets the last 2x2 matrix in the bottom right corner to 0
+}
+
+void Circuit::populateFullSystemMatrix() {
+	//Update the matrix systemPot with the potentiometers of the FULL system matrix
+	systemPot = (incidentPot.transpose())*diagPotMatrix.partialPivLu().solve(incidentPot);
+
+	systemMatrixFULL = systemMatrix + (padPot.transpose()*diagPotMatrix.partialPivLu().solve(padPot));
 
 }
 
@@ -302,6 +309,7 @@ double Circuit::getVol()
 void Circuit::setParams(double _fuzzVal, double _volVal) {
 	setFuzz(_fuzzVal);
 	setVol(_volVal);
+	refreshFullCircuit();	//Refresh All matrices, call when paramater change needs to be implemented
 }
 
 /* Returns the circuit saturation current IS */

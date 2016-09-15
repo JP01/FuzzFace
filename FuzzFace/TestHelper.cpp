@@ -124,8 +124,55 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatr
 	return testPass;
 }
 
+//Takes a data set produced from matlab and a matrix of floats and compares them, returns true if they are the same
+bool TestHelper::matrixCheckerFloat(std::string matlabData, Eigen::MatrixXf inputMatrix)
+{
+	//Initialise the total rows and cols for looping 
+	int totalRows = inputMatrix.rows();
+	int totalCols = inputMatrix.cols();
+
+	//create a vector to store the matlab generated matrix
+	std::vector<double> matlabResults;
+
+	//put the matlab results into the vector
+	matlabResults = readMatrixData(matlabData);
+
+	/* Test case processing */
+	int resultIndex = 0; //the index from the vector matlabResults
+	bool testPass = true; //Boolean flag used to determine the outcome of the testcase
+
+	
+	//Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
+	for (int row = 0; row < totalRows; row++)
+	{
+		for (int col = 0; col < totalCols; col++) {
+
+			/*Check each value for any differences, if there is a difference print an error message */
+			double difference = 0;
+			difference = matlabResults[resultIndex] - inputMatrix(row, col);
+
+			//If the difference is greater than acceptableError then output error and fail the test 
+			// "-difference" accounts for the difference being a negative number
+			if (difference > acceptableError || -difference > acceptableError) {
+				//Increase precision, used for error checking
+				std::cout.precision(32);
+				//if false, print error and erronious data
+				std::cout << "\nAn error occured at sample: " << resultIndex << ".\nMatlab Result: \t" << matlabResults[resultIndex] << "\nEigen Result: \t" << inputMatrix(row, col) << "\n The difference is : " << difference << std::endl;
+				//set the testPass to false, letting Boost know the testcase has failed
+				testPass = false;
+			}
+
+			resultIndex++;  //increment the resultIndex to move to next value in the matlabResults vector
+		}
+	}
+	
+	
+	
+	return testPass;
+}
+
 //Takes a data set produced from matlab and a matrix of doubles and compares them, returns true if they are the same
-bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatrix)
+bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatrix)
 {
 	//Initialise the total rows and cols for looping 
 	int totalRows = inputMatrix.rows();
