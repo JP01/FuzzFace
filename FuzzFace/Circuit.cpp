@@ -11,8 +11,6 @@ Circuit::Circuit(double _sampleRate) :samplePeriod(1. / _sampleRate) {
 
 	//Set the sampleRate of the circuit to input _sampleRate
 	sampleRate = _sampleRate;
-
-	std::cout << "Circuit Created with SR: " << sampleRate << std::endl;
 	
 	//Initialise controllable paramaters
 	setParams(FUZZ_DEFAULT, VOL_DEFAULT);
@@ -196,9 +194,6 @@ void Circuit::populateConstantStateSpaceTerms() {
 	stateSpaceH0 = padNL*systemMatrix.partialPivLu().solve(padI.transpose()); //populate
 	//K0 = [N_N zeros(nn,nu)]*(S0\[N_N zeros(nn,nu)].');
 	stateSpaceK0 = padNL*systemMatrix.partialPivLu().solve(padNL.transpose()); //populate
-
-
-	std::cout << stateSpaceA0 << std::endl;
 }
 
 /* Function used to refrseh the final state space terms, combines the variable elements with the constant terms, called by refresh()*/

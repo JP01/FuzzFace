@@ -43,7 +43,7 @@ typedef Eigen::Matrix<double, numCap, numInputs> StateSpaceB;
 typedef Eigen::Matrix<double, numCap, numNonLin> StateSpaceC;
 typedef Eigen::Matrix<double, numOutputs, numCap> StateSpaceD;
 typedef Eigen::Matrix<double, numOutputs, numInputs> StateSpaceE;
-typedef Eigen::Matrix<double, numOutputs, numNonLin> stateSpaceF;
+typedef Eigen::Matrix<double, numOutputs, numNonLin> StateSpaceF;
 typedef Eigen::Matrix<double, numNonLin, numCap> StateSpaceG;
 typedef Eigen::Matrix<double, numNonLin, numInputs> StateSpaceH;
 typedef Eigen::Matrix<double, numNonLin, numNonLin> StateSpaceK;

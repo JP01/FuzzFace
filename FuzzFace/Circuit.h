@@ -66,7 +66,7 @@ protected:
 	StateSpaceC stateSpaceC, stateSpaceC0;
 	StateSpaceD stateSpaceD, stateSpaceD0;
 	StateSpaceE stateSpaceE, stateSpaceE0;
-	stateSpaceF stateSpaceF, stateSpaceF0;
+	StateSpaceF stateSpaceF, stateSpaceF0;
 	StateSpaceG stateSpaceG, stateSpaceG0;
 	StateSpaceH stateSpaceH, stateSpaceH0;
 	StateSpaceK stateSpaceK, stateSpaceK0;

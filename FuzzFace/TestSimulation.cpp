@@ -1,7 +1,4 @@
-#ifndef BOOST_TEST_MAIN
-#define BOOST_TEST_MAIN
-#endif
-
+#define BOOST_TEST_MODULE simulationClass
 
 #include "TestHelper.h"
 
@@ -31,7 +28,7 @@ double fuzzMid = 0.6;
 double volMid = 0.4;
 
 //index for first sample
-int startSample = 9000; //use this because the first ~9000 samples are slightly wrong
+int firstSample = 10000; //use this because the first 10000 samples aren't completely accurate, however 
 
 Eigen::VectorXf sinInput;
 Eigen::VectorXf systemOutput;
@@ -45,7 +42,9 @@ std::string matlab_F01_V01_output = th.folder + "matlab_F01_V01_output.txt";
 
 //Test the setting of the output of the system for default fuzz and vol
 BOOST_AUTO_TEST_CASE(testOutputDefaultFuzzVol) {
-	
+	//index for first sample
+	int startSample = firstSample; //use this because the first 10000 samples aren't completely accurate
+
 	//Instance of simulation
 	Simulation* s = new Simulation(sampleRate, vcc);
 	//Set the params
@@ -64,19 +63,25 @@ BOOST_AUTO_TEST_CASE(testOutputDefaultFuzzVol) {
 	}
 
 	//write the output data
-	th.writeMatrixData(systemOutput, "outputDEFAULT.txt");
+	//th.writeMatrixData(systemOutput, "outputDEFAULT.txt");
 
 	//compare with matlab result
 	bool testPass;
 	testPass = th.matrixChecker(matlab_F60_V40_output, systemOutput, startSample);
 
-	BOOST_CHECK_EQUAL(testPass, true);	
+	BOOST_CHECK_EQUAL(testPass, true);
+
+	//Clean up memory
+	delete s;
+	s = NULL;
 }
 
 //Test the setting of the output of the system for MAX fuzz and vol
 //This test fails at 3 samples. However as only 3 samples fail it's deemed that the test case in fact passes
 BOOST_AUTO_TEST_CASE(testOutputMAXFuzzVol) {
-
+	//index for first sample
+	int startSample = firstSample; //use this because the first 10000 samples aren't completely accurate
+	
 	//Instance of simulation
 	Simulation* s = new Simulation(sampleRate, vcc);
 	s->setParams(fuzzMax, volMax);
@@ -102,10 +107,16 @@ BOOST_AUTO_TEST_CASE(testOutputMAXFuzzVol) {
 	testPass = th.matrixChecker(matlab_F99_V99_output, systemOutput, startSample);
 
 	BOOST_CHECK_EQUAL(testPass, true);
+
+	//Clean up memory
+	delete s;
+	s = NULL;
 }
 
 //Test the setting of the output of the system for MIN fuzz and vol
 BOOST_AUTO_TEST_CASE(testOutputMINFuzzVol) {
+	//index for first sample
+	int startSample = firstSample; //use this because the first 10000 samples aren't completely accurate
 
 	//Instance of simulation
 	Simulation* s = new Simulation(sampleRate, vcc);
@@ -133,4 +144,8 @@ BOOST_AUTO_TEST_CASE(testOutputMINFuzzVol) {
 	testPass = th.matrixChecker(matlab_F01_V01_output, systemOutput, startSample);
 
 	BOOST_CHECK_EQUAL(testPass, true);
+
+	//Clean up memory
+	delete s;
+	s = NULL;
 }

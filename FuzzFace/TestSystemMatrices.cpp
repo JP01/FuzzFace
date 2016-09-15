@@ -1,6 +1,8 @@
-#define BOOST_TEST_MAIN
+#define BOOST_TEST_MODULE systemMatrices
 
 #include "TestHelper.h"
+//Create an instance of TestHelper
+TestHelper th;
 
 /*
 Test Data 
@@ -19,7 +21,6 @@ double volDefault = 0.4;
 double volLow = 0.01;
 double volHigh = 0.99;
 
-
 //Different Sample rates with default Fuzz and Vol
 std::string matlabSettingsDefault_SR441 = th.folder + "systemMatrixFromMatlab_F_60_V_40_SR_44100.txt";
 std::string matlabSettingsDefault_SR48 = th.folder + "systemMatrixFromMatlab_F_60_V_40_SR_48000.txt";
@@ -34,9 +35,6 @@ std::string matlabSettingsLow_SR96 = th.folder + "systemMatrixFromMatlab_F_01_V_
 std::string matlabSettingsHigh_SR441 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_44100.txt";
 std::string matlabSettingsHigh_SR48 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_48000.txt";
 std::string matlabSettingsHigh_SR96 = th.folder + "systemMatrixFromMatlab_F_99_V_99_SR_96000.txt";
-
-//Create an instance of TestHelper
-TestHelper th;
 
 
 /*
@@ -194,7 +192,5 @@ BOOST_AUTO_TEST_CASE(testSystemMatrixHigh_SR96) {
 	BOOST_CHECK_EQUAL(testPass, true);
 
 }
-
-
 
 

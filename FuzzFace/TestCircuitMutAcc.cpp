@@ -1,4 +1,4 @@
-#define BOOST_TEST_MAIN
+#define BOOST_TEST_MODULE circuitMutAcc
 
 #include "TestHelper.h"
 

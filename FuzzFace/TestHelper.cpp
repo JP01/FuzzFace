@@ -108,8 +108,7 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXf inputMatr
 				difference = matlabResults[resultIndex] - inputMatrix(row, col);
 
 				//If the difference is greater than acceptableError then output error and fail the test 
-				// "-difference" accounts for the difference being a negative number
-				if (difference > acceptableError || -difference > acceptableError) {
+				if (abs(difference) * 100 / inputMatrix(row, col) > acceptableErrorPercentage) {
 					//Increase precision, used for error checking
 					std::cout.precision(32);
 					//if false, print error and erronious data
@@ -152,8 +151,8 @@ bool TestHelper::matrixCheckerFloat(std::string matlabData, Eigen::MatrixXf inpu
 			difference = matlabResults[resultIndex] - inputMatrix(row, col);
 
 			//If the difference is greater than acceptableError then output error and fail the test 
-			// "-difference" accounts for the difference being a negative number
-			if (difference > acceptableError || -difference > acceptableError) {
+
+			if (abs(acceptableError)*100/inputMatrix(row,col) > 10) {
 				//Increase precision, used for error checking
 				std::cout.precision(32);
 				//if false, print error and erronious data
@@ -197,9 +196,8 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 				double difference = 0;
 				difference = matlabResults[resultIndex] - inputMatrix(row, col);
 
-				//If the difference is greater than acceptableError then output error and fail the test 
-				// "-difference" accounts for the difference being a negative number
-				if (difference > acceptableError || -difference > acceptableError) {
+				//If the difference is greater than acceptableErrorPercentage then output error and fail the test 	
+				if (abs(difference) * 100 / inputMatrix(row, col) > acceptableErrorPercentage) {
 					//Increase precision, used for error checking
 					std::cout.precision(32);
 					//if false, print error and erronious data

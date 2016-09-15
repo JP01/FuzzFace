@@ -11,7 +11,9 @@
 #include "Eigen/Dense"
 #include "Simulation.h"
 
+
 const double ERROR = 1e-5; //acceptable error used when comparing matlab data to plugin data
+const double acceptableErrorPercentage = 0.001; //acceptable % error in values
 
 /*
 Use matrix values from Matlab with default settings to create testMatrix
@@ -38,9 +40,9 @@ public:
 	~TestHelper();
 
 	const double acceptableError = ERROR;
+
 	//Set the path to the folder where the matlab results are stored
 	std::string folder = "C:/Users/the_m/Desktop/Masters Project Docs/Matlab/";
-
 
 	//Read matrix data from a file and return it as a vector of type double
 	std::vector<double> readMatrixData(std::string fileName);
