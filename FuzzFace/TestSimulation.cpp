@@ -28,7 +28,7 @@ double fuzzMid = 0.6;
 double volMid = 0.4;
 
 //index for first sample
-int firstSample = 10000; //use this because the first 10000 samples aren't completely accurate, however 
+int firstSample = 10000; //use this because the first 10000 samples aren't completely accurate, however as sim will be real time, a "faded volume" will be used in plugin to reduce these first number of samples 
 
 Eigen::VectorXf sinInput;
 Eigen::VectorXf systemOutput;
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(testOutputDefaultFuzzVol) {
 	}
 
 	//write the output data
-	//th.writeMatrixData(systemOutput, "outputDEFAULT.txt");
+	th.writeMatrixData(systemOutput, "outputDEFAULT.txt");
 
 	//compare with matlab result
 	bool testPass;

@@ -17,9 +17,7 @@ Simulation::Simulation(double _sampleRate, double _vcc) : Circuit(_sampleRate)
 	std::cout << "get steady state" << std::endl;
 	//Get the system to a steady State
 	getSteadyState();
-
 }
-
 
 //Initialise the matrices used in the simulation
 void Simulation::initialiseSimulationParameters() {

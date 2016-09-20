@@ -179,7 +179,6 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 
 	//create a vector to store the matlab generated matrix
 	std::vector<double> matlabResults;
-
 	//put the matlab results into the vector
 	matlabResults = readMatrixData(matlabData);
 
@@ -187,11 +186,10 @@ bool TestHelper::matrixChecker(std::string matlabData, Eigen::MatrixXd inputMatr
 	int resultIndex = 0; //the index from the vector matlabResults
 	bool testPass = true; //Boolean flag used to determine the outcome of the testcase
 
-						  //Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
+	//Loop through all values of matlabResults and inputMatrix, Check corresponding values are equal and output error if not
 	for (int row = 0; row < totalRows; row++)
 	{
 		for (int col = 0; col < totalCols; col++) {
-
 				/*Check each value for any differences, if there is a difference print an error message */
 				double difference = 0;
 				difference = matlabResults[resultIndex] - inputMatrix(row, col);
@@ -217,7 +215,6 @@ Eigen::VectorXf TestHelper::generateSin(double _sampleRate, double _frequency, d
 	//Create a vector to store sin input and time vector
 	Eigen::VectorXf sinWaveVector;
 	Eigen::VectorXd timeVector;
-	//Attributes of the input sin wave
 
 	//Number of samples rounded up to the nearest whole integer
 	double numberOfSamples = ceil(_sampleRate * _duration);

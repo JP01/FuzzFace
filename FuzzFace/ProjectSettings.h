@@ -24,9 +24,6 @@ namespace constants {
 	const double CLIPPING_POINT = 0.1; //if the input signal excedes this then clip to ensure system cannot crash
 	const double OUTPUT_SCALAR = 2; //Scale the output of the system back up to useable levels
 
-	const double CLIPPING_FILTER_CUTOFF = 140; //The cutoff in hz of the clipping filter for filtering the clipped signal
-
-
 	//timer freq for the UI updater in hz
 	const int UI_TIMER_FREQ = 100;
 	//timer freq for the param updater in hz
